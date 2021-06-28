@@ -7,7 +7,6 @@ const defaultFirstColor = "#00ff00";
 const defaultSecondColor = "#ff00ff";
 
 const pixelSizes = [4, 5, 6, 8, 10, 14, 18, 27, 40, 80];
-//const pixelSizes = [6, 7, 8, 10, 14, 18, 27, 40, 80, 160];
 
 const maxCols = 4;
 

@@ -30,6 +30,8 @@
                 <option value="Sierra">&nbsp;&nbsp;&bull; Sierra</option>
                 <option value="TwoRowSierra">&nbsp;&nbsp;&bull; Two-Row Sierra</option>
 
+                <option value="StephensonArce">Stephenson Arce</option>
+
                 <!--option value="OmniDirectional">Omni-Directional</option-->
             </select><br/>
             <select id="colorList">
@@ -55,10 +57,19 @@
             </div>
             <div class="section">
                 Pixel shape:<br/>
+
                 <input type="radio" id="shape_sq" name="shape" value="square" onchange="recalc()" checked="checked">
                 <label for="shape_sq">Square</label><br/>
+
                 <input type="radio" id="shape_tri" name="shape" value="triangle" onchange="recalc()">
-                <label for="shape_tri">Eq. Triangle</label>
+                <label for="shape_tri">Eq. Triangle</label><br/>
+
+                <input type="radio" id="shape_righttri" name="shape" value="righttriangle" onchange="recalc()">
+                <label for="shape_righttri">Right Triangle</label><br/>
+
+                <input type="radio" id="shape_hex" name="shape" value="hexagon" onchange="recalc()">
+                <label for="shape_hex">Hexagon</label>
+
             </div>
         </div>
     </div>
