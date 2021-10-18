@@ -42,10 +42,22 @@ const DitherStudies = () => {
             "b": matrix[y][x].b - val.b,
         };
 
+        if (typeof(coefset.nums) == "undefined" || coefset.nums == null) {
+            if (y % 2 == 0) {
+                nums = coefset.nums_even
+            } else {
+                nums = coefset.nums_odd
+            }
+        }
+        else 
+        {
+            nums = coefset.nums
+        }
+
         // loop through coefficients for the dither and carry over error
         // i:x,j:y where i.j are coeffs and x,y are matrix cells
-        for (let j = 0; j < coefset.nums.length; j++) {
-            for (let i = 0; i < coefset.nums[j].length; i++) {
+        for (let j = 0; j < nums.length; j++) {
+            for (let i = 0; i < nums[j].length; i++) {
                 let x_use = x + i - coefset.start_x;
                 let y_use = y + j - coefset.start_y;
 
@@ -60,9 +72,9 @@ const DitherStudies = () => {
                     x_use >= 0 && x_use < matrix[y].length) {
 
                     matrix[y_use][x_use] = d3.lab(
-                        matrix[y_use][x_use].l - diffmatrix["l"] * coefset.nums[j][i] / coefset.denom,
-                        matrix[y_use][x_use].a - diffmatrix["a"] * coefset.nums[j][i] / coefset.denom,
-                        matrix[y_use][x_use].b - diffmatrix["b"] * coefset.nums[j][i] / coefset.denom
+                        matrix[y_use][x_use].l - diffmatrix["l"] * nums[j][i] / coefset.denom,
+                        matrix[y_use][x_use].a - diffmatrix["a"] * nums[j][i] / coefset.denom,
+                        matrix[y_use][x_use].b - diffmatrix["b"] * nums[j][i] / coefset.denom
                     );
                 }
             }

@@ -76,5 +76,20 @@ DitherStudies.kernels = {
         "start_y" : 0,
         "denom" : 200,
         "nums" : [[0,0,32],[12,26,30,16],[12,26,12,0],[5,12,12,5]]
+    },
+    "RightTriangle_Temkin1":
+    { 
+        "start_x" : 1,
+        "start_y" : 0,
+        "denom" : 16,
+        "nums" : [[0, 0, 11], [1, 3, 1]]
+    },
+    "RightTriangle_BiDirectional":
+    { 
+        "start_x" : 1,
+        "start_y" : 0,
+        "denom" : 16,
+        "nums_even" : [[0, 0, 11], [1, 3, 1]],
+        "nums_odd" : [[0, 0, 7], [2, 5, 2]]
     }
 }
