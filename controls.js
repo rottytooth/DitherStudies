@@ -68,6 +68,21 @@ function adjSliders(t) {
     recalc();
 }
 
+function currshape() {
+    // determine shape
+    var radios = document.getElementsByName('shape');
+    var shape = '';
+
+    for (let i = 0, length = radios.length; i < length; i++) {
+        if (radios[i].checked) {
+            shape = radios[i].value;
+            break;
+        }
+    }
+
+    return shape;
+}
+
 function recalc() {
 
     var sliders = document.getElementsByClassName("slider");
@@ -89,7 +104,7 @@ function recalc() {
     }
     var finalcolor = d3.lab(l / 512, a / 512, b / 512);
 
-    // determine regular vs serpentine
+    // determine ltor vs serpentine
     var radios = document.getElementsByName('flow');
     var flow = '';
 
@@ -100,16 +115,7 @@ function recalc() {
         }
     }
 
-    // determine shape
-    var radios = document.getElementsByName('shape');
-    var shape = '';
-
-    for (let i = 0, length = radios.length; i < length; i++) {
-        if (radios[i].checked) {
-            shape = radios[i].value;
-            break;
-        }
-    }
+    shape = currshape();
 
     // console.log(document.getElementById("colorpick0").value);
     // console.log(document.getElementById("colorpick1").value);
@@ -118,12 +124,11 @@ function recalc() {
 
     updateLocation(palette, finalcolor, document.getElementById("ditheringAlgorithm").value, flow, pixelSize, shape);
 
-    updateDisplay(); // this is a call to dither_display. In the "uncombined" view, the updateLocation() all above would actually reload the page for the display monitor, and that would then just do a calculateDither based on that
+    let height = document.getElementById('ditherCanvas').clientHeight;
+    let width = document.getElementById('ditherCanvas').clientWidth;
 
-    // FIXME: move this to dither_display
-    // matrix = calculateDither(palette, finalcolor, document.getElementById("ditheringAlgorithm").value, flow);
-
-    // drawDither(matrix, pixelSize, shape);
+    // FIXME: this will look at shape and pass the appropriate offset
+    updateDisplay(height, width, 0, 0); // this is a call to dither_display. In the "uncombined" view, the updateLocation() all above would actually reload the page for the display monitor, and that would then just do a calculateDither based on that
 }
 
 function updateLocation(palette_cols, starting_color, algorithm, flow, size, shape) {
@@ -190,8 +195,51 @@ function createColorControls() {
     recalc();
 }
 
+function populateDitherDropDown() {
+    $("#ditheringAlgorithm").empty();
+    shape = currshape();
+
+    kern_list = DitherStudies.kernels;
+    dither_list = [];
+    group_list = [];
+    Object.keys(kern_list).forEach((key) => {
+        dither_list.push({"key":key, "name":kern_list[key].name, "group":kern_list[key].group, "shapes":kern_list[key].shapes});
+        if (!group_list.includes(kern_list[key].group)) {
+            group_list.push(kern_list[key].group);
+        }
+    }); 
+
+    group_list.forEach(group => { 
+        let $optgroup = $(`<optgroup label='${group}'>`);
+        let added = false;
+
+        filtered = dither_list.filter(a => a.group == group);
+
+        for (i=0; i<filtered.length; i++) {
+            let dither = filtered[i];
+            if (dither.shapes.includes(shape)) {
+                let op = `<option value='${dither.key}'>${dither.name}</option>`;
+                $optgroup.append(op);    
+                added = true;
+            }
+        }
+
+        if (added)
+            $("#ditheringAlgorithm").append($optgroup);
+    });
+}
+
+function shapeChange() {
+    populateDitherDropDown();
+    recalc();
+}
+
 function setPixelSize(t) {
-    pixelSize = pixelSizes[t.value];
+    shape = currshape();
+    let idx = parseInt(t.value);
+    if (shape == 'triangle' || shape == 'righttriangle')
+        idx += 2;
+    pixelSize = pixelSizes[idx];
     recalc();
 }
 
@@ -199,6 +247,7 @@ function setPixelSize(t) {
     document.getElementById("ditheringAlgorithm").onchange = recalc;
     document.getElementById("colorList").onchange = createColorControls;
 
+    populateDitherDropDown();
     createColorControls();
 
  })();

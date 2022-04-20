@@ -81,7 +81,7 @@ const DitherStudies = () => {
         }
     }
 
-    function calculateDither(palette_cols, starting_color, algorithm, flow) {
+    function calculateDither(palette_cols, starting_color, algorithm, flow, rows = 48 * 10, cols= 36 * 10) {
 
         // convert colors to lab color
         var palette = [];
@@ -94,11 +94,9 @@ const DitherStudies = () => {
         }
 
         // build matrix
-        var height = 36 * 10;
-        var width = 48 * 10;
-        var matrix = [];
-        for (let i=0; i < height; i++) {
-            matrix[i] = new Array(width).fill(starting_color);
+        var matrix = []; 
+        for (let i=0; i < rows; i++) {
+            matrix[i] = new Array(cols).fill(starting_color);
         }
 
         palette_d3 = [];
@@ -110,7 +108,7 @@ const DitherStudies = () => {
         coefset = DitherStudies.kernels[algorithm];
 
         for (let y = 0; y < matrix.length; y++) {
-            ltor = (flow == 'regular' || y % 2 == 0); // direction
+            ltor = (flow == 'ltor' || y % 2 == 0 && flow != 'rtol'); // direction
 
             if (ltor) {
                 for(let x = 0; x < matrix[y].length; x++) {
