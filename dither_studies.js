@@ -88,9 +88,9 @@ const DitherStudies = () => {
         for (let i = 0; i < palette_cols.length; i++) {
             palette[i] = d3.lab(palette_cols[i]);
 
-            if (DEBUG) console.log(i)
+            if (DEBUG) console.log(i);
             if (DEBUG) console.log(palette[i]);
-            if (DEBUG) console.log(d3.rgb(palette[i]))    
+            if (DEBUG) console.log(d3.rgb(palette[i]));
         }
 
         // build matrix

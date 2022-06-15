@@ -18,7 +18,7 @@ DitherStudies.kernels = {
         "start_y" : 0,
         "denom" : 16,
         "nums" : [[0, 0, 7], [3, 5, 1]],
-        "shapes": ["square","righttriangle","righttriangle_rev","triangle"],
+        "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
         "group": "FS and Variants"
     },
     "ZFan" : { 
@@ -117,7 +117,7 @@ DitherStudies.kernels = {
         "start_y" : 0,
         "denom" : 200,
         "nums" : [[0,0,32],[12,26,30,16],[12,26,12,0],[5,12,12,5]],
-        "shapes": ["hexagon"],
+        "shapes": ["hexagon","hexagon_rev"],
         "group": "Other Shapes"
     },
     "RightTriangle_Temkin1": {

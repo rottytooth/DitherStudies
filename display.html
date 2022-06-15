@@ -40,26 +40,29 @@
             <div class="section">
                 Pixel size:
                 <div class="slidecontainer">
-                    <input id="pixelsize" type="range" min="0" max="9" value="3" class="slider_psize" onchange="setPixelSize(this)">
+                    <input id="pixelsize" type="range" min="0" max="8" value="3" class="slider_psize" onchange="setPixelSize()">
                 </div>
             </div>
             <div class="section">
                 Pixel shape:<br/>
 
-                <input type="radio" id="shape_sq" name="shape" value="square" onchange="shapeChange()" checked="checked">
+                <input type="radio" id="shape_sq" name="shape" value="square" onchange="setShape()" checked="checked">
                 <label for="shape_sq">Square</label><br/>
 
-                <input type="radio" id="shape_tri" name="shape" value="triangle" onchange="shapeChange()">
+                <input type="radio" id="shape_tri" name="shape" value="triangle" onchange="setShape()">
                 <label for="shape_tri">Eq. Triangle</label><br/>
 
-                <input type="radio" id="shape_righttri" name="shape" value="righttriangle" onchange="shapeChange()">
+                <input type="radio" id="shape_righttri" name="shape" value="righttriangle" onchange="setShape()">
                 <label for="shape_righttri">Right Triangle</label><br/>
 
-                <input type="radio" id="shape_righttri_rev" name="shape" value="righttriangle_rev" onchange="shapeChange()">
+                <input type="radio" id="shape_righttri_rev" name="shape" value="righttriangle_rev" onchange="setShape()">
                 <label for="shape_righttri_rev">Right Triangle</label><br/>
 
-                <input type="radio" id="shape_hex" name="shape" value="hexagon" onchange="shapeChange()">
-                <label for="shape_hex">Hexagon</label>
+                <input type="radio" id="shape_hex" name="shape" value="hexagon" onchange="setShape()">
+                <label for="shape_hex">Hexagon</label><br/>
+
+                <input type="radio" id="shape_hex_rev" name="shape" value="hexagon_rev" onchange="setShape()">
+                <label for="shape_hex_rev">Hexagon</label>
 
             </div>
             <div style="padding-bottom: 20px; padding-top: -10px;">
@@ -68,7 +71,6 @@
         </div>
     </div>
     <script src = "dither_display.js"></script>
-    <script src = "controls.js"></script>
     <script type="text/javascript">
         $('#download').click(function() {
             save_img_jquery(this, 'ditherCanvas');
