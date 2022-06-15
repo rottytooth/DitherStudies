@@ -402,11 +402,19 @@ function updateLocation(palette_cols, slider_values, starting_color, algorithm, 
     history.replaceState(null, null, "?cols=" + encodeURIComponent(palette_cols.join()) + "&s=" + encodeURIComponent(slider_values.join(",")) + "&c=" + encodeURIComponent(starting_color.formatHex()) + "&algo=" + algorithm + "&flow=" + flow + "&size=" + size + "&shape=" + shape);
 }
 
+function updateColorControls() {
+    colors = document.getElementById("colorList").value;
+    createColorChildControls(colors);
+}
+
 function createColorControls() {
+    createColorChildControls(state.palette.length);
+}
+
+// this can be called either from dropdown change or from querystring
+function createColorChildControls(colorslength) {
     state = decodeLocation();
 
-    // FIXME: Fix this, get from state like the others
-    // but also make sure state for this is set on change
     var sliders = document.getElementById("sliders");
     // var colors = parseInt(document.getElementById("colorList").value);
 
@@ -424,7 +432,7 @@ function createColorControls() {
         sliderLocs = state.slidervals;
     }
 
-    for (let i = 0; i < state.palette.length; i++) {
+    for (let i = 0; i < colorslength; i++) {
         var colorpicker = document.createElement("input");
         colorpicker.id = "colorpick" + i;
         colorpicker.setAttribute("type", "color");
@@ -570,7 +578,7 @@ function setPixelSize() {
     $("input[name=shape][value=" + state.shape + "]").prop('checked', true);
 
     document.getElementById("ditheringAlgorithm").onchange = recalc;
-    document.getElementById("colorList").onchange = createColorControls;
+    document.getElementById("colorList").onchange = updateColorControls;
 
     document.getElementById('colorList').value = state.palette.length;
     $("input[name=flow][value=" + state.flow + "]").prop('checked', true);
