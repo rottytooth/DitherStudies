@@ -7,7 +7,7 @@ const defaultSecondColor = "#ff00ff";
 
 const pixelSizes = {
     "square": [5, 6, 8, 10, 14, 18, 27, 40, 80],
-    "triangle": [8, 10, 14, 18, 27, 40, 60, 80, 100],
+    "triangle": [6, 8, 10, 14, 18, 27, 40, 60, 80, 100],
     "righttriangle": [6, 8, 10, 14, 18, 27, 40, 60, 80],
     "righttriangle_rev": [6, 8, 10, 14, 18, 27, 40, 60, 80],
     "hexagon": [5, 6, 8, 10, 14, 18, 27, 40, 80],
@@ -25,7 +25,7 @@ var ds; // this will be a DitherStudies object
  * height: height of the canvas
  * width: width of the canvas
  */
-function updateDisplay(height, width, overlapx, overlapy) {
+function updateDisplay(height, width) {
 
     state = decodeLocation(); // current state, drawn from url
 
@@ -228,29 +228,40 @@ function drawDither(matrix, pixelSize, shape, rows, cols) {
 
 function getRowCount(shape, height, width, pixelSize) {
 
-    rows = Math.ceil(height / pixelSize);
-    cols = Math.ceil(width / pixelSize);
+    rows = Math.floor(height / pixelSize);
+    cols = Math.floor(originalWidth / pixelSize);
+
+    origcols = cols;
+    offset = 1;
+    offset_h = 0;
 
     switch(shape) {
         case 'square':
-             cols--;
-            break;
+             rows++;
+             break;
         case 'triangle':
             rows *= 2;
             cols = Math.ceil(cols * (1 / EQ_SIDE_TO_HEIGHT) * 2);
-            cols -= 2;
             break;
         case 'righttriangle':
         case 'righttriangle_rev':
             cols *= 2;
-            cols -= 2;
+            rows += 2;
             break;
-        case 'hexagon':
         case 'hexagon_rev':
             rows *= 2;
-            cols -= 3;
+            cols -= 1;
+            offset = HEX_SIDE_TO_HEIGHT;
+            break;
+        case 'hexagon':
+            rows *= 2;
+            cols -= 1;
+            rows += 3;
+            offset_h = 1.2;
             break;
     }
+    document.getElementById('ditherCanvas').width = (origcols + offset_h) * pixelSize * offset;
+
     return [rows, cols];
 }
 
@@ -258,7 +269,6 @@ function save_img(canvasId) {
     var canvas = document.getElementById(canvasId);
     window.open(canvas.toDataURL('image/png'));
 }
-
 
 function pad(num, size) {
     num = num.toString();
@@ -394,7 +404,7 @@ function recalc() {
     let width = document.getElementById('ditherCanvas').clientWidth;
 
     // FIXME: this will look at shape and pass the appropriate offset
-    updateDisplay(height, width, 0, 0); // this is a call to dither_display
+    updateDisplay(height, width); // this is a call to dither_display
 }
 
 function updateLocation(palette_cols, slider_values, starting_color, algorithm, flow, size, shape) {
@@ -503,7 +513,11 @@ function populateDitherDropDown() {
         for (i=0; i<filtered.length; i++) {
             let dither = filtered[i];
             if (dither.shapes.includes(shape)) {
-                let op = `<option value='${dither.key}'>${dither.name}</option>`;
+                let selected = "";
+                if (dither.key == state.algo) {
+                    selected = "selected='selected'";
+                }
+                let op = `<option value='${dither.key}' ${selected}>${dither.name}</option>`;
                 $optgroup.append(op);    
                 added = true;
             }
@@ -538,6 +552,7 @@ function setPixelSize() {
     recalc();
 }
 
+var originalWidth;
 
 // STARTUP
 (function() {
@@ -566,13 +581,14 @@ function setPixelSize() {
     canvas.width = document.body.clientWidth - 300;
     canvas.height = document.body.clientHeight;
 
+    originalWidth = canvas.width; // global, used for pixel calculation
+
     if (/[?&]cols=/.test(location.search)) {
         // we have just loaded the page and there is already a "cols" in the querystring
     
         updateDisplay(
             document.getElementById('ditherCanvas').clientHeight,
-            document.getElementById('ditherCanvas').clientWidth,
-            0,0);        
+            document.getElementById('ditherCanvas').clientWidth);        
     }
     state = decodeLocation();
     $("input[name=shape][value=" + state.shape + "]").prop('checked', true);
@@ -589,7 +605,7 @@ function setPixelSize() {
 
     let height = document.getElementById('ditherCanvas').clientHeight;
     let width = document.getElementById('ditherCanvas').clientWidth;
-    updateDisplay(height, width, 0, 0);
+    updateDisplay(height, width);
 
  })();
 

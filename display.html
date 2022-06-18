@@ -15,7 +15,7 @@
         <div id="bigContainer">
             <canvas id="ditherCanvas"></canvas>
         </div>
-        <div id="controls">
+        <div id="contols_wrapper"><div id="controls">
             <h1>Dither Studies</h1>
             <select id="ditheringAlgorithm">
                 <!--option value="OmniDirectional">Omni-Directional</option-->
@@ -24,7 +24,6 @@
                 <option value="2">2 Colors</option>
                 <option value="3">3 Colors</option>
                 <option value="4">4 Colors</option>
-                <!-- <option value="5">5 Colors</option> -->
             </select><br/>
             <div id="sliders"></div>
 
@@ -58,17 +57,17 @@
                 <input type="radio" id="shape_righttri_rev" name="shape" value="righttriangle_rev" onchange="setShape()">
                 <label for="shape_righttri_rev">Right Triangle</label><br/>
 
-                <input type="radio" id="shape_hex" name="shape" value="hexagon" onchange="setShape()">
-                <label for="shape_hex">Hexagon</label><br/>
-
                 <input type="radio" id="shape_hex_rev" name="shape" value="hexagon_rev" onchange="setShape()">
-                <label for="shape_hex_rev">Hexagon</label>
+                <label for="shape_hex_rev">Hexagon</label><br/>
+
+                <input type="radio" id="shape_hex" name="shape" value="hexagon" onchange="setShape()">
+                <label for="shape_hex">Hexagon</label>
 
             </div>
             <div style="padding-bottom: 20px; padding-top: -10px;">
                 <a style="color: blue; cursor: pointer;" id="download">Download Image</a>
             </div>
-        </div>
+        </div></div>
     </div>
     <script src = "dither_display.js"></script>
     <script type="text/javascript">
