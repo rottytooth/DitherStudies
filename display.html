@@ -17,34 +17,8 @@
         </div>
         <div id="contols_wrapper"><div id="controls">
             <h1>Dither Studies</h1>
-            <select id="ditheringAlgorithm">
-                <!--option value="OmniDirectional">Omni-Directional</option-->
-            </select><br/>
-            <select id="colorList">
-                <option value="2">2 Colors</option>
-                <option value="3">3 Colors</option>
-                <option value="4">4 Colors</option>
-            </select><br/>
-            <div id="sliders"></div>
-
+            <h3><a href="https://danieltemkin.com/DitherStudies/About/">About</a></h3>
             <div class="section">
-                Flow:<br/>
-                <input type="radio" id="ltor" name="flow" value="ltor" checked="checked" onchange="recalc()">
-                <label for="ltor">Left to Right</label><br/>
-                <input type="radio" id="serpentine" name="flow" value="serpentine" onchange="recalc()">
-                <label for="serpentine">Serpentine (trade off by row)</label><br>
-                <input type="radio" id="rtol" name="flow" value="rtol" onchange="recalc()">
-                <label for="rtol">Right to Left</label><br/>
-            </div>
-            <div class="section">
-                Pixel size:
-                <div class="slidecontainer">
-                    <input id="pixelsize" type="range" min="0" max="8" value="3" class="slider_psize" onchange="setPixelSize()">
-                </div>
-            </div>
-            <div class="section">
-                Pixel shape:<br/>
-
                 <input type="radio" id="shape_sq" name="shape" value="square" onchange="setShape()" checked="checked">
                 <label for="shape_sq">Square</label><br/>
 
@@ -64,8 +38,32 @@
                 <label for="shape_hex">Hexagon</label>
 
             </div>
-            <div style="padding-bottom: 20px; padding-top: -10px;">
-                <a style="color: blue; cursor: pointer;" id="download">Download Image</a>
+            <select id="ditheringAlgorithm">
+                <!--option value="OmniDirectional">Omni-Directional</option-->
+            </select><br/>
+            <select id="colorList">
+                <option value="2">2 Colors</option>
+                <option value="3">3 Colors</option>
+                <option value="4">4 Colors</option>
+            </select><br/>
+
+            <div id="sliders"></div>
+
+            <div class="section" id="flowSection">
+                <input type="radio" id="ltor" name="flow" value="ltor" checked="checked" onchange="recalc()">
+                <label for="ltor">Left to Right</label><br/>
+                <input type="radio" id="serpentine" name="flow" value="serpentine" onchange="recalc()">
+                <label for="serpentine">Serpentine (trade off by row)</label><br>
+                <input type="radio" id="rtol" name="flow" value="rtol" onchange="recalc()">
+                <label for="rtol">Right to Left</label><br/>
+            </div>
+            <div class="section">
+                <div class="slidecontainer">
+                    <label for="pixelsize" id="pixelSizeLabel">Size</label>
+                    <input id="pixelsize" type="range" min="0" max="8" value="3" class="slider_psize" onchange="setPixelSize()">
+
+                    <a style="color: blue; cursor: pointer;" id="download">Download Image</a>
+                </div>
             </div>
         </div></div>
     </div>

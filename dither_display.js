@@ -4,6 +4,7 @@ const HEX_SIDE_TO_HEIGHT = 1.732051;
 
 const defaultFirstColor = "#00ff00";
 const defaultSecondColor = "#ff00ff";
+const defaultThirdColor = "#0000ff";
 
 const pixelSizes = {
     "square": [5, 6, 8, 10, 14, 18, 27, 40, 80],
@@ -15,6 +16,8 @@ const pixelSizes = {
 };
 
 var downloadCount = 0; // this is for counting the images exported from the site in this session
+
+var sliderLocs = []; // this will hold the prepopulated value of each of the color sliders
 
 var ds; // this will be a DitherStudies object
 
@@ -210,13 +213,17 @@ function drawDither(matrix, pixelSize, shape, rows, cols) {
                     start_y -= 3.5 * sidelenrev;
                 }
 
+                pixelOffset = 0.0;
+                if (pixelSize > 4) pixelOffset = 0.2;
+                if (pixelSize > 10) pixelOffset = 0.4;
+
                 ctx.beginPath();
-                ctx.moveTo(start_x, start_y - .4);
-                ctx.lineTo(start_x + sidelenrev, start_y + pixelSize / 2.0 - .2);
-                ctx.lineTo(start_x + sidelenrev, start_y + pixelSize * 3.0 / 2.0 - .2);
-                ctx.lineTo(start_x - .2, start_y + 2.0 * pixelSize + .2);
-                ctx.lineTo(start_x - sidelenrev, start_y + pixelSize * 3.0 / 2.0 + .2);
-                ctx.lineTo(start_x - sidelenrev, start_y + pixelSize / 2.0 + .2);
+                ctx.moveTo(start_x, start_y - pixelOffset);
+                ctx.lineTo(start_x + sidelenrev + pixelOffset, start_y + pixelSize / 2.0 - pixelOffset);
+                ctx.lineTo(start_x + sidelenrev + pixelOffset, start_y + pixelSize * 3.0 / 2.0 + pixelOffset);
+                ctx.lineTo(start_x, start_y + 2.0 * pixelSize + pixelOffset);
+                ctx.lineTo(start_x - sidelenrev - pixelOffset, start_y + pixelSize * 3.0 / 2.0 + pixelOffset);
+                ctx.lineTo(start_x - sidelenrev - pixelOffset, start_y + pixelSize / 2.0 - pixelOffset);
 
                 ctx.closePath();
                 ctx.fill();
@@ -226,6 +233,9 @@ function drawDither(matrix, pixelSize, shape, rows, cols) {
     }
 }
 
+// Given the height and width of the canvas and the shape and size of the pixel, returns 
+// the number of rows and cols and adjusts the size of the canvas to the largest that looks 
+//right for that shape
 function getRowCount(shape, height, width, pixelSize) {
 
     rows = Math.floor(height / pixelSize);
@@ -282,9 +292,6 @@ function save_img_jquery(link, canvasId) {
     downloadCount++;
 }
 
-
-// CONTROLS
-
 // average the supplied colors and return their complement in hex form
 function getComplementaryColor(colorList) {
     var r_tot = 0, g_tot = 0, b_tot = 0;
@@ -293,6 +300,13 @@ function getComplementaryColor(colorList) {
         r_tot += locol.r;
         g_tot += locol.g;
         b_tot += locol.b;
+    }
+
+    // if we're going to end up with that average grey, pick a random bright color
+    if (r_tot >= 253 && g_tot >= 253 && b_tot >= 253) {
+        let hue = Math.floor(Math.random() * 360);
+        new_color = d3.hsl(hue, 1, .5).formatHex();
+        return new_color;
     }
 
     return d3.rgb(
@@ -321,21 +335,43 @@ function clickColor(t, number) {
     recalc();
 }
 
-// this will hold the prepopulated value of each of the color sliders
-var sliderLocs = [];
-
 function adjSliders(t) {
     var sliders = document.getElementsByClassName("slider");
 
     slider_changed = parseInt(t.id.slice(-1));
-    slidersum = 512 - sliderLocs[slider_changed]; // sum of the ones that did not change
+
+    if (!sliderLocs || sliderLocs.length == 0) {
+        sliderLocs = [];
+    }
+
+    // we don't have all the entries yet
+    if (sliderLocs.length < sliders.length) {
+        for (let i = 0; i < sliders.length; i++) {
+            sliderLocs[i] = sliders[i].value;
+        }
+    }
+
+    slidersum = 511 - sliderLocs[slider_changed]; // sum of the ones that did not change
 
     var newSliderLocs = [];
     for(let i = 0; i < sliders.length; i++) {
-        if (slider_changed != i)
-            document.getElementById("colorslide" + i).value = sliderLocs[i] * (512 - parseInt(document.getElementById("colorslide" + slider_changed).value)) / slidersum 
+        if (slider_changed != i) {
+            document.getElementById("colorslide" + i).value = sliderLocs[i] * (512 - parseInt(document.getElementById("colorslide" + slider_changed).value)) / slidersum;
+        }
         newSliderLocs[i] = document.getElementById("colorslide" + i).value;
     }
+
+    // check that the other sliders do not total more than they should
+    // let total_without_changed = sliderLocs.slice().splice(slider_changed,1).reduce((partialSum, a) => partialSum + a, 0);
+    let total_avg = newSliderLocs.reduce((partialSum, a) => partialSum + parseInt(a), 0) / newSliderLocs.length;
+    if (total_avg > 256.0 || total_avg < 254) {
+        for(let i = 0; i < newSliderLocs.length; i++) {
+            if (slider_changed != i) {
+                newSliderLocs[i] = newSliderLocs[i] - (total_avg - 256) / (newSliderLocs.length - 1);
+            }
+        }        
+    }
+
     sliderLocs = newSliderLocs;
 
     recalc();
@@ -413,8 +449,9 @@ function updateLocation(palette_cols, slider_values, starting_color, algorithm, 
 }
 
 function updateColorControls() {
-    colors = document.getElementById("colorList").value;
-    createColorChildControls(colors);
+    color_count = document.getElementById("colorList").value;
+    createColorChildControls(color_count);
+    recalc();
 }
 
 function createColorControls() {
@@ -455,7 +492,11 @@ function createColorChildControls(colorslength) {
             // no colors yet, use defaults
             colorpicker.setAttribute("value", defaultFirstColor);
         } else if (i == 1) {
+            // no colors yet, use default for second color
             colorpicker.setAttribute("value", defaultSecondColor);
+        } else if (i == 2 && prevColors.length == 2 && prevColors[0] == defaultFirstColor && prevColors[1] == defaultSecondColor ) {
+            // the user has gone to three colors and not changed any color yet
+            colorpicker.setAttribute("value", defaultThirdColor);
         } else {
             var colorList = [];
             for (let j = 0; j < i; j++) {
@@ -474,7 +515,7 @@ function createColorChildControls(colorslength) {
         selectSlide.setAttribute("min", "0");
         selectSlide.setAttribute("max", "511");
         if (sliderLocs.length < i) {
-            sliderLocs[i] = 512/colors;
+            sliderLocs[i] = 512/(sliderLocs.length+1);
         }
         selectSlide.setAttribute("value", sliderLocs[i]);
         selectSlide.setAttribute("class", "slider");
@@ -484,8 +525,6 @@ function createColorChildControls(colorslength) {
         sliders.appendChild(colorpicker);
         sliders.appendChild(selectHolder);
     }
-
-    // recalc();
 }
 
 function populateDitherDropDown() {
@@ -562,14 +601,14 @@ var originalWidth;
         var codeValue = event.code;
        
         // Keyboard shortcuts
-        if (codeValue == 'ArrowRight') {
-            document.getElementById("colorslide0").value = document.getElementById("colorslide0").valueAsNumber + 1
-            adjSliders(document.getElementById("colorslide0"))
-        }
-        if (codeValue == 'ArrowLeft') {
-            document.getElementById("colorslide0").value = document.getElementById("colorslide0").valueAsNumber - 1
-            adjSliders(document.getElementById("colorslide0"))
-        }
+        // if (codeValue == 'ArrowRight') {
+        //     document.getElementById("colorslide0").value = document.getElementById("colorslide0").valueAsNumber + 1
+        //     adjSliders(document.getElementById("colorslide0"))
+        // }
+        // if (codeValue == 'ArrowLeft') {
+        //     document.getElementById("colorslide0").value = document.getElementById("colorslide0").valueAsNumber - 1
+        //     adjSliders(document.getElementById("colorslide0"))
+        // }
         if (codeValue == 'KeyD') {
             // FIXME: doesn't seem to work
             $('#download').click();

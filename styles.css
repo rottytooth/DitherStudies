@@ -14,8 +14,17 @@ html, body {
 .section, h1 {
   padding-bottom: 20px;
 }
+h3 {
+  padding-bottom: 20px;
+}
+#flowSection {
+  padding-top: 10px;
+}
 input[type=radio] {
   margin-left: 15px;
+}
+#ditheringAlgorithm {
+  margin-top: 20px;
 }
 select {
   font-size: 120%;
@@ -24,7 +33,7 @@ select {
   padding-bottom: 7px;
 }
 .colorpicker {
-  width: 95%;
+  width: 10%;
 }
  
 #outerContainer {
@@ -48,19 +57,33 @@ select {
   padding-left: 5px;
   width: 295px;
   margin: 0;
-    /* margin-left: 5px; */
-    /* border: solid 1px black; */
 }
 
 .slidecontainer {
-    width: 100%; /* Width of the outside container */
-  }
-  
-  /* The slider itself */
-  .slider, .slider_psize {
+    width: 85%;
+    display: inline-block;
+    vertical-align: middle;
+    padding-left: 3%;
+}
+
+#sliders {
+    padding-top: 5px;
+}
+
+.slider_psize {
+  display: inline-block;
+  vertical-align: middle;
+  width: 80%;
+  margin-left: 5px;
+}
+#pixelSizeLabel {
+  padding: 2px;
+}
+
+/* The slider itself */
+.slider, .slider_psize {
     -webkit-appearance: none;  /* Override default CSS styles */
     appearance: none;
-    width: 100%; /* Full-width */
     height: 10px; /* Specified height */
     background: #d3d3d3; /* Grey background */
     outline: none; /* Remove outline */
@@ -69,9 +92,11 @@ select {
     transition: opacity .2s;
     margin-top: 10px;
     margin-bottom: 20px;
+}
+.slider {
+  width: 95%;
+}
 
-    width: 95%;
-  }
   
   /* Mouse-over effects */
   .slider:hover,  .slider_psize:hover {
