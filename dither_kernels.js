@@ -138,5 +138,43 @@ DitherStudies.kernels = {
         "nums_odd" : [[0, 0, 7], [2, 5, 2]],
         "shapes": ["righttriangle","righttriangle_rev"],
         "group": "Other Shapes"
+    },
+    "HexDiagonals1": {
+        "name" : "HexDiagonals 1", 
+        "start_x" : 1,
+        "start_y" : 0,
+        "denom" : 16,
+        "nums" : [[0, 0, 5], [0, 0, 2], [0, 8, 1]],
+        "shapes": ["hexagon"],
+        "group": "Other Shapes"
+    },
+    "Hex2": {
+        "name" : "Hex2", 
+        "start_x" : 1,
+        "start_y" : 0,
+        "denom" : 16,
+        "nums" : [[0, 0, 2], [0, 0, 2], [3, 8, 1]],
+        "shapes": ["hexagon"],
+        "group": "Other Shapes"
+    },
+    "HexRevThreeRow1": {
+        "name" : "HexRev1", 
+        "start_x" : 1,
+        "start_y" : 0,
+        "denom" : 16,
+        "nums" : [[0, 0, 2], [0, 0, 2], [4, 0, 8]],
+        "shapes": ["hexagon_rev"],
+        "group": "Other Shapes"
+    },
+    "Stearns": {
+        "name": "Stearns",
+        "start_x" : 1,
+        "start_y" : 0,
+        "denom" : 28,
+        "nums" : [[ 0, 0, 5, 3 ], [ 3, 5, 3, 1 ], [ 1, 3, 3, 1 ]],
+        "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
+        "group": "Other Shapes"
     }
 }
+
+
