@@ -174,7 +174,61 @@ DitherStudies.kernels = {
         "nums" : [[ 0, 0, 5, 3 ], [ 3, 5, 3, 1 ], [ 1, 3, 3, 1 ]],
         "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
         "group": "Other Shapes"
-    }
+    },
+    "TwoRowGrey": {
+        "name": "TwoRowGrey",
+        "start_x" : 1,
+        "start_y" : 0,
+        "denom" : 8,
+        "nums" : [[0, 0, 4], [1, 1, 1]],
+        "shapes": ["hexagon_rev"],
+        "group": "Other Shapes"
+    },
+    "MLHexRev1": {
+        "name": "ML Hex Rev 1",
+        "start_x" : 2,
+        "start_y" : 0,
+        "denom" : 26,
+        "nums" : [[0, 0, 0, 11, 0], [2, 2, 3, 4, 2], [0, 0, 0, 1, 0]],
+        "shapes": ["hexagon_rev"],
+        "group": "Other Shapes"
+    },
+    "MLHexRev2": {
+        "name": "ML Hex Rev 2",
+        "start_x" : 1,
+        "start_y" : 0,
+        "denom" : 45,
+        "nums" : [[0, 0, 21], [6, 8, 10]],
+        "shapes": ["hexagon_rev"],
+        "group": "Other Shapes"
+    },
+    "MLHexRev3": {
+        "name": "ML Hex Rev 3",
+        "start_x" : 3,
+        "start_y" : 0,
+        "denom" : 89,
+        "nums" : [[0, 0, 0, 0, 11, 3], [9, 2, 7, 4, 8, 9], [2, 2, 3, 2, 0, 2], [2, 3, 2, 7, 8, 3]],
+        "shapes": ["hexagon_rev"],
+        "group": "Other Shapes"
+    },
+    "MLHexRev4": {
+        "name": "ML Hex Rev 4",
+        "start_x" : 1,
+        "start_y" : 0,
+        "denom" : 55,
+        "nums" : [[0, 0, 19], [3, 8, 5], [1, 4, 1], [1, 6, 7]],
+        "shapes": ["hexagon_rev"],
+        "group": "Other Shapes"
+    },
+    "MLHex3G": {
+        "name": "ML Hex Third Gen",
+        "start_x" : 2,
+        "start_y" : 0,
+        "denom" : 26,
+        "nums" : [[0, 0, 0, 1], [7, 4, 6, 8]],
+        "shapes": ["hexagon"],
+        "group": "Other Shapes"
+    },
 }
 
 

@@ -43,7 +43,7 @@ const DitherStudies = () => {
         };
 
         if (typeof(coefset.nums) == "undefined" || coefset.nums == null) {
-            if (y % 2 == 0) {
+            if (x % 2 == 0) {
                 nums = coefset.nums_even
             } else {
                 nums = coefset.nums_odd

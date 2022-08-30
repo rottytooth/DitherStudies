@@ -89,6 +89,15 @@ const decodeLocation = () => {
     };
 }
 
+function open_kernel_popup() {
+    document.getElementById("kernelPopUp").style.display = 'block';
+    document.getElementById("kernelBackground").style.display = 'block';
+}
+function close_kernel_popup() {
+    document.getElementById("kernelPopUp").style.display = 'none';
+    document.getElementById("kernelBackground").style.display = 'none';
+}
+
 function drawDither(matrix, pixelSize, shape, rows, cols) {
 
     // updateLink();
@@ -179,6 +188,31 @@ function drawDither(matrix, pixelSize, shape, rows, cols) {
                     ctx.fill();
                 }
                 break;
+            case 'hexagon_rev':
+                let sidelenrev = (pixelSize * HEX_SIDE_TO_HEIGHT) / 2.0;
+
+                let start_x = w * sidelenrev * 2.0;
+                let start_y = h * pixelSize * 1.5 - sidelenrev * 0.5;
+
+                if (oddrow) {
+                    start_x += sidelenrev;
+                }
+  
+                pixelOffset = 0.0;
+                if (pixelSize > 4) pixelOffset = 0.2;
+                if (pixelSize > 10) pixelOffset = 0.4;
+
+                ctx.beginPath();
+                ctx.moveTo(start_x, start_y - pixelOffset);
+                ctx.lineTo(start_x + sidelenrev + pixelOffset, start_y + pixelSize / 2.0 - pixelOffset);
+                ctx.lineTo(start_x + sidelenrev + pixelOffset, start_y + pixelSize * 3.0 / 2.0 + pixelOffset);
+                ctx.lineTo(start_x, start_y + 2.0 * pixelSize + pixelOffset);
+                ctx.lineTo(start_x - sidelenrev - pixelOffset, start_y + pixelSize * 3.0 / 2.0 + pixelOffset);
+                ctx.lineTo(start_x - sidelenrev - pixelOffset, start_y + pixelSize / 2.0 - pixelOffset);
+
+                ctx.closePath();
+                ctx.fill();
+                break;            
             case 'hexagon':
                 // pixelSize will be height of the hexagon; 
                 let sidelen = pixelSize / HEX_SIDE_TO_HEIGHT;
@@ -197,33 +231,6 @@ function drawDither(matrix, pixelSize, shape, rows, cols) {
                 ctx.lineTo(starting_x + sidelen + .2, starting_y + pixelSize + .2);
                 ctx.lineTo(starting_x, starting_y + pixelSize + .2);
                 ctx.lineTo(starting_x - 0.5 * sidelen - .2, starting_y + pixelSize / 2.0);
-
-                ctx.closePath();
-                ctx.fill();
-                break;
-            case 'hexagon_rev':
-
-                let sidelenrev = (pixelSize * HEX_SIDE_TO_HEIGHT) / 2.0;
-
-                let start_x = w * sidelenrev * 2.0;
-                let start_y = h * pixelSize * 1.5;
-
-                if (oddrow) {
-                    start_x -= 1.0 * sidelenrev;
-                    start_y -= 3.5 * sidelenrev;
-                }
-
-                pixelOffset = 0.0;
-                if (pixelSize > 4) pixelOffset = 0.2;
-                if (pixelSize > 10) pixelOffset = 0.4;
-
-                ctx.beginPath();
-                ctx.moveTo(start_x, start_y - pixelOffset);
-                ctx.lineTo(start_x + sidelenrev + pixelOffset, start_y + pixelSize / 2.0 - pixelOffset);
-                ctx.lineTo(start_x + sidelenrev + pixelOffset, start_y + pixelSize * 3.0 / 2.0 + pixelOffset);
-                ctx.lineTo(start_x, start_y + 2.0 * pixelSize + pixelOffset);
-                ctx.lineTo(start_x - sidelenrev - pixelOffset, start_y + pixelSize * 3.0 / 2.0 + pixelOffset);
-                ctx.lineTo(start_x - sidelenrev - pixelOffset, start_y + pixelSize / 2.0 - pixelOffset);
 
                 ctx.closePath();
                 ctx.fill();
@@ -260,12 +267,14 @@ function getRowCount(shape, height, width, pixelSize) {
             break;
         case 'hexagon_rev':
             rows *= 2;
+            cols = Math.ceil(cols * 23.0/40.0);
             cols -= 1;
             offset = HEX_SIDE_TO_HEIGHT;
             break;
         case 'hexagon':
             rows *= 2;
-            cols -= 1;
+            cols = Math.ceil(cols * 23.0/40.0);
+            cols -= 2;
             rows += 3;
             offset_h = 1.2;
             break;
@@ -436,6 +445,8 @@ function recalc() {
 
     updateLocation(palette, slider_values, finalcolor, document.getElementById("ditheringAlgorithm").value, flow, pixelSize, shape);
 
+    populatePopUp();
+
     let height = document.getElementById('ditherCanvas').clientHeight;
     let width = document.getElementById('ditherCanvas').clientWidth;
 
@@ -449,7 +460,7 @@ function updateLocation(palette_cols, slider_values, starting_color, algorithm, 
 }
 
 function updateColorControls() {
-    color_count = document.getElementById("colorList").value;
+    color_count = document.querySelector('input[name="colorListSize"]:checked').value;
     createColorChildControls(color_count);
     recalc();
 }
@@ -515,7 +526,7 @@ function createColorChildControls(colorslength) {
         selectSlide.setAttribute("min", "0");
         selectSlide.setAttribute("max", "511");
         if (sliderLocs.length < i) {
-            sliderLocs[i] = 512/(sliderLocs.length+1);
+            sliderLocs[i] = 512/(sliderLocs.length + 1);
         }
         selectSlide.setAttribute("value", sliderLocs[i]);
         selectSlide.setAttribute("class", "slider");
@@ -549,7 +560,7 @@ function populateDitherDropDown() {
 
         filtered = dither_list.filter(a => a.group == group);
 
-        for (i=0; i<filtered.length; i++) {
+        for (i = 0; i < filtered.length; i++) {
             let dither = filtered[i];
             if (dither.shapes.includes(shape)) {
                 let selected = "";
@@ -589,6 +600,240 @@ function setShape() {
 
 function setPixelSize() {
     recalc();
+}
+
+function populatePopUp() {
+    let state = decodeLocation();
+    let currentDitherLbl = document.getElementById("currentDither");
+    let currKernel = DitherStudies.kernels[state.algo];
+    currentDitherLbl.innerText = currKernel.name;
+
+    nums = {};
+    // if it is not a triangle, the default case
+    if (state.shape != "triangle" && state.shape != "righttriangle" && state.shape != "righttriangle_rev")
+    {        
+        nums = currKernel.nums;
+        let kernelDenom = document.getElementById("kernelDenom")
+        // kernelDenom.innerText = "Denominator: " + currKernel.denom;
+    
+        DrawDitherKernel(document.getElementById("kernelMap"), nums, currKernel.start_x, currKernel.start_y, currKernel.denom);
+
+        let downker = document.getElementById("kernelMap_Down");
+        downker.width = downker.width;
+    } else { // triangles (because they can have up and down kernels)
+        if ('nums' in currKernel) {
+            nums = currKernel.nums;
+        } else {
+            nums = currKernel.nums_even;
+        }
+    
+        DrawDitherKernel(document.getElementById("kernelMap"), nums, currKernel.start_x, currKernel.start_y, currKernel.denom);
+
+        if ('nums' in currKernel) {
+            nums = currKernel.nums;
+        } else {
+            nums = currKernel.nums_odd;
+        }
+    
+        DrawDitherKernel(document.getElementById("kernelMap_Down"), nums, currKernel.start_x, currKernel.start_y, currKernel.denom, true);
+    }
+    // currently, start_x, start_y, and denom are shared by the up and down
+    // this might not be true in the future
+}
+
+function DrawDitherKernel(c, nums, start_x, start_y, denom, flip=false) {
+    let state = decodeLocation();
+    let ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    flip = flip ? 1 : 0
+
+    c.width = 500;
+    c.height = 300;
+
+    ctx.lineWidth = 2;
+
+    let pixelSize = 50;
+    ctx.font = "20px Lato, sans-serif";
+    ctx.textAlign = 'center';
+
+    for (let y = 0; y < nums.length; y++) {
+        for (let x = 0; x < nums[0].length; x++) {
+            content = nums[y][x];
+
+            oddrow = Math.abs(y - start_y) % 2 != 0;
+            oddcol = Math.abs(x - start_x) % 2 != flip;
+
+            last_x = 0;
+            last_y = 0;
+
+            if (y < start_y || (y == start_y && x < start_x)) {
+                continue;
+            }
+            else if (y == start_y && x == start_x) {
+                content = "\u00d7";
+            }
+            // Yes, this is all cut-and-pasted from drawDither() above then with little changes made to it, and the whole thing should be refactored to combine the two
+            switch(state.shape) {
+                case "square":
+                    ctx.rect(pixelSize * x + 2, pixelSize * y + 2, pixelSize, pixelSize);
+                    ctx.fillText(content, pixelSize * x + pixelSize / 2.0, pixelSize * y + pixelSize / 2.0 + 10);
+                    last_x = pixelSize * x + pixelSize;
+                    last_y = pixelSize * y + pixelSize;
+                    break;
+                case "triangle":
+                    triPixelSize = pixelSize * 1.4;
+                    xoffset = x * (triPixelSize / 2);
+                    ctx.beginPath();
+                    if ((oddrow && oddcol) || (!oddrow && !oddcol)) {
+                        // apex at top
+                        left = {};
+                        left.x = xoffset;
+                        left.y = triPixelSize * EQ_SIDE_TO_HEIGHT * (y + 1) + 3;
+
+                        right = {};
+                        right.x = triPixelSize + xoffset;
+                        right.y = triPixelSize * EQ_SIDE_TO_HEIGHT * (y + 1) + 3;
+
+                        apex = {};
+                        apex.x = triPixelSize / 2 + xoffset;
+                        apex.y = triPixelSize * EQ_SIDE_TO_HEIGHT * y + 3;
+
+                        ctx.fillText(content, triPixelSize / 2 + xoffset, triPixelSize * EQ_SIDE_TO_HEIGHT * (y + 1.5) - triPixelSize * .6);
+
+                        last_x = triPixelSize + xoffset;
+                        last_y = triPixelSize * EQ_SIDE_TO_HEIGHT * (y + 1) + 3;
+                    } else {
+                        left = {};
+                        left.x = xoffset;
+                        left.y = triPixelSize * EQ_SIDE_TO_HEIGHT * y + 3;
+
+                        right = {};
+                        right.x = triPixelSize + xoffset;
+                        right.y = triPixelSize * EQ_SIDE_TO_HEIGHT * y + 3;
+
+                        apex = {};
+                        apex.x = triPixelSize / 2 + xoffset;
+                        apex.y = triPixelSize * EQ_SIDE_TO_HEIGHT * (y + 1) + 3;
+
+                        ctx.fillText(content, triPixelSize / 2 + xoffset, triPixelSize * EQ_SIDE_TO_HEIGHT * (y + 1.5) - triPixelSize * .85);
+
+                        last_x = triPixelSize + xoffset;
+                        last_y = triPixelSize * EQ_SIDE_TO_HEIGHT * (y + 1) + 3;
+                    }
+                    // console.log(`left: ${left.x}, ${left.y}`);
+                    // console.log(`right: ${right.x}, ${right.y}`);
+                    // console.log(`apex: ${apex.x}, ${apex.y}`);
+                    ctx.moveTo(left.x, left.y);
+                    ctx.lineTo(right.x, right.y);
+                    ctx.lineTo(apex.x, apex.y);
+                    ctx.closePath();
+                    break;
+                case "righttriangle":
+                    triPixelSize = pixelSize * 1.2;
+                    xoffset = (x / 2 - (oddcol ? .5 : 0)) * triPixelSize + 30;
+                    ctx.beginPath();
+
+                    if (oddcol) { // down-facing
+                        ctx.moveTo(xoffset, triPixelSize * y + 2);
+                        ctx.lineTo(xoffset + triPixelSize + 0.2, triPixelSize * y + 2);
+                        ctx.lineTo(xoffset + triPixelSize + 0.2, triPixelSize * (y + 1) + 2);
+
+                        ctx.fillText(content, xoffset + triPixelSize * 0.7, triPixelSize * (y + 0.5));
+                    } else {
+                        ctx.moveTo(xoffset, triPixelSize * y + 2);
+                        ctx.lineTo(xoffset - 0.2, triPixelSize * (y + 1) + 2);
+                        ctx.lineTo(xoffset + triPixelSize - 0.2, triPixelSize * (y + 1) + 2);
+
+                        ctx.fillText(content, xoffset + triPixelSize * 0.3, triPixelSize * (y + 0.9));
+                    }
+                    ctx.closePath();
+                    last_x = xoffset + triPixelSize + 0.2;
+                    last_y = triPixelSize * (y + 1) + 0.2;
+                    break;
+                case "righttriangle_rev":
+                    triPixelSize = pixelSize * 1.2;
+                    xoffset = (x / 2 - (oddcol ? .5 : 0)) * triPixelSize + 30;
+                    ctx.beginPath();
+
+                    if (oddcol) { // down-facing
+                        ctx.moveTo(xoffset, triPixelSize * (y + 1) + 2);
+                        ctx.lineTo(xoffset + triPixelSize, triPixelSize * y + 2);
+                        ctx.lineTo(xoffset + triPixelSize, triPixelSize * (y + 1) + 2);
+
+                        ctx.fillText(content, xoffset + triPixelSize * 0.7, triPixelSize * (y + 0.9));
+                    } else {
+                        ctx.moveTo(xoffset, triPixelSize * y + 2);
+                        ctx.lineTo(xoffset, triPixelSize * (y + 1) + 2);
+                        ctx.lineTo(xoffset + triPixelSize, triPixelSize * y + 2);
+
+                        ctx.fillText(content, xoffset + triPixelSize * 0.3, triPixelSize * (y + 0.5));
+                    }
+    
+                    ctx.closePath();
+                    last_x = xoffset + triPixelSize + 0.2;
+                    last_y = triPixelSize * (y + 1) + 0.2;
+                    break;
+                case 'hexagon_rev':
+                    triPixelSize = pixelSize * 0.6;
+
+                    let sidelenrev = (triPixelSize * HEX_SIDE_TO_HEIGHT) / 2.0;
+
+                    let start_x = x * sidelenrev * 2.0 + 80;
+                    let start_y = y * triPixelSize * 1.5 + 30;
+    
+                    if (oddrow) {
+                        start_x += sidelenrev;
+                    }
+                            
+                    ctx.beginPath();
+                    ctx.moveTo(start_x, start_y);
+                    ctx.lineTo(start_x + sidelenrev, start_y + triPixelSize / 2.0);
+                    ctx.lineTo(start_x + sidelenrev, start_y + triPixelSize * 3.0 / 2.0);
+                    ctx.lineTo(start_x, start_y + 2.0 * triPixelSize);
+                    ctx.lineTo(start_x - sidelenrev, start_y + triPixelSize * 3.0 / 2.0);
+                    ctx.lineTo(start_x - sidelenrev, start_y + triPixelSize / 2.0);
+    
+                    ctx.fillText(content, start_x, start_y + triPixelSize * 1.2);
+
+                    ctx.closePath();
+                    last_x = start_x + sidelenrev;
+                    last_y = start_y + triPixelSize * 3.0 / 2.0 + 5;
+                    break;                
+                case "hexagon": // this is actually the second hexagon
+                    triPixelSize = pixelSize;
+
+                    // pixelSize will be height of the hexagon; 
+                    let sidelen = triPixelSize / HEX_SIDE_TO_HEIGHT;
+
+                    let starting_x = x * sidelen * 3.0 + 2 * sidelen + 3;
+                    let starting_y = y * triPixelSize / 2.0 + 3;
+
+                    if (oddrow) {
+                        starting_x -= 1.5 * sidelen;
+                    }
+
+                    ctx.beginPath();
+                    ctx.moveTo(starting_x, starting_y);
+                    ctx.lineTo(starting_x + sidelen, starting_y);
+                    ctx.lineTo(starting_x + 1.5 * sidelen, starting_y + triPixelSize / 2.0);
+                    ctx.lineTo(starting_x + sidelen, starting_y + triPixelSize);
+                    ctx.lineTo(starting_x, starting_y + triPixelSize);
+                    ctx.lineTo(starting_x - 0.5 * sidelen, starting_y + triPixelSize / 2.0);
+
+                    ctx.fillText(content, starting_x + sidelen * 0.5, starting_y + triPixelSize / 1.7);
+
+                    ctx.closePath();
+                    if (last_x < starting_x + 1.5 * sidelen)
+                        last_x = starting_x + 1.5 * sidelen;
+                    last_x += 20;
+                    last_y = starting_y + triPixelSize + 5;
+                    break;    
+            }
+            ctx.stroke();
+        }
+    }
+    ctx.fillText("/ " + denom, last_x + pixelSize / 2 + 10, last_y - pixelSize / 2 + 10);
 }
 
 var originalWidth;
@@ -633,14 +878,24 @@ var originalWidth;
     $("input[name=shape][value=" + state.shape + "]").prop('checked', true);
 
     document.getElementById("ditheringAlgorithm").onchange = recalc;
-    document.getElementById("colorList").onchange = updateColorControls;
 
-    document.getElementById('colorList').value = state.palette.length;
+    var color_nums = document.getElementsByName("colorListSize");
+    for (let i = 0; i < color_nums.length; i++) {
+        color_nums[i].onchange = updateColorControls;
+        if (color_nums[i].value == state.palette.length) {
+            color_nums[i].checked = true;
+        }
+    }
+
+    // document.getElementById("colorList").onchange = updateColorControls;
+    // document.getElementById('colorList').value = state.palette.length;
+
     $("input[name=flow][value=" + state.flow + "]").prop('checked', true);
 
     populateDitherDropDown();
     createColorControls();
     setSizeSlider();
+    populatePopUp();
 
     let height = document.getElementById('ditherCanvas').clientHeight;
     let width = document.getElementById('ditherCanvas').clientWidth;

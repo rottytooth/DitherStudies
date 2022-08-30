@@ -12,51 +12,93 @@
   </head>
 <body>
     <div id="outerContainer">
-        <div id="bigContainer">
+        <div id="kernelBackground"></div>
+        <div id="kernelPopUp">
+        <div id="closePopup" onclick="close_kernel_popup()">&#x00D7;</div>
+        <div id="popupContent">
+            <h2><span id="currentDither"></span></h2>
+            <div id="kernelsWrapper">
+                <div class="kernelRow">
+                    <div class="kernelHolder">
+                        <canvas id="kernelMap" width="500" height="300"></canvas>
+                    </div>
+                    <div class="kernelHolder">
+                        <canvas id="kernelMap_Down" width="500" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="bigContainer">
             <canvas id="ditherCanvas"></canvas>
         </div>
         <div id="contols_wrapper"><div id="controls">
             <h1>Dither Studies</h1>
             <h3>A Contentless Dithering System by Daniel Temkin</h3>
             <h3><a href="https://danieltemkin.com/DitherStudies/About/">About</a></h3>
-            <div class="section">
-                <input type="radio" id="shape_sq" name="shape" value="square" onchange="setShape()" checked="checked">
-                <label for="shape_sq">Square</label><br/>
+            <div class="section" id="shape_radios">
 
-                <input type="radio" id="shape_tri" name="shape" value="triangle" onchange="setShape()">
-                <label for="shape_tri">Eq. Triangle</label><br/>
-
-                <input type="radio" id="shape_righttri" name="shape" value="righttriangle" onchange="setShape()">
-                <label for="shape_righttri">Right Triangle</label><br/>
-
-                <input type="radio" id="shape_righttri_rev" name="shape" value="righttriangle_rev" onchange="setShape()">
-                <label for="shape_righttri_rev">Right Triangle</label><br/>
-
-                <input type="radio" id="shape_hex_rev" name="shape" value="hexagon_rev" onchange="setShape()">
-                <label for="shape_hex_rev">Hexagon</label><br/>
-
-                <input type="radio" id="shape_hex" name="shape" value="hexagon" onchange="setShape()">
-                <label for="shape_hex">Hexagon</label>
-
+                <div class="button">
+                    <input type="radio" id="shape_sq" name="shape" value="square" onchange="setShape()" checked="checked"><label class="btn btn-default" for="shape_sq">&#x25FC;</label>
+                </div>
+                <div class="button">
+                    <input type="radio" id="shape_tri" name="shape" value="triangle" onchange="setShape()" />
+                    <label class="btn btn-default" for="shape_tri">&#x25B2;</label>
+                </div>
+                <div class="button">
+                    <input type="radio" id="shape_righttri" name="shape" value="righttriangle" onchange="setShape()" />
+                    <label class="btn btn-default" for="shape_righttri">&#x25E3;</label>
+                </div>
+                <div class="button">
+                    <input type="radio" id="shape_righttri_rev" name="shape" value="righttriangle_rev" onchange="setShape()"><label class="btn btn-default" for="shape_righttri_rev">&#x25E2;</label>
+                </div>
+                <div class="button">
+                    <input type="radio" id="shape_hexagon_rev" name="shape" value="hexagon_rev" onchange="setShape()" />
+                    <label class="btn btn-default" for="shape_hexagon_rev">&#x2B22;</label>
+                </div>
+                <div class="button">
+                    <input type="radio" id="shape_hexagon" name="shape" value="hexagon" onchange="setShape()" />
+                    <label class="btn btn-default" for="shape_hexagon">&#x2B23;</label>
+                </div>
+                
             </div>
-            <select id="ditheringAlgorithm">
-                <!--option value="OmniDirectional">Omni-Directional</option-->
-            </select><br/>
-            <select id="colorList">
-                <option value="2">2 Colors</option>
-                <option value="3">3 Colors</option>
-                <option value="4">4 Colors</option>
-            </select><br/>
 
-            <div id="sliders"></div>
+            <div class="section" id="dither_algo_controls">
+                <select id="ditheringAlgorithm"></select><br/>
+                <a style="color: blue; cursor: pointer;" id="see_kernel" onclick="open_kernel_popup()">See Kernel</a><br/>
+            </div>
+
+            <div id="dither_color_controls">
+                <div class="button small">
+                    <input type="radio" id="colorlistsize_2" name="colorListSize" value="2" checked="checked"><label class="btn btn-default" for="colorlistsize_2">&#x25ae; &#x25ae;</label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="colorlistsize_3" name="colorListSize" value="3" checked="checked"><label class="btn btn-default" for="colorlistsize_3">&#x25ae; &#x25ae; &#x25ae;</label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="colorlistsize_4" name="colorListSize" value="4" checked="checked"><label class="btn btn-default" for="colorlistsize_4">&#x25ae; &#x25ae; &#x25ae; &#x25ae;</label>
+                </div><div style="clear: both"></div>
+
+                <div id="sliders"></div>
+            </div>
 
             <div class="section" id="flowSection">
-                <input type="radio" id="ltor" name="flow" value="ltor" checked="checked" onchange="recalc()">
+                <div class="button small">
+                    <input type="radio" id="ltor" name="flow" value="ltor" onchange="recalc()" checked="checked"><label class="btn btn-default" for="ltor">&#x21C9;</label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="serpentine" name="flow" value="serpentine" onchange="recalc()" checked="checked"><label class="btn btn-default" for="serpentine">&#x21C4;</label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="rtol" name="flow" value="rtol" onchange="recalc()" checked="checked"><label class="btn btn-default" for="rtol">&#x21C7;</label>
+                </div>
+
+                <!-- <input type="radio" id="ltor" name="flow" value="ltor" checked="checked" onchange="recalc()">
                 <label for="ltor">Left to Right</label><br/>
                 <input type="radio" id="serpentine" name="flow" value="serpentine" onchange="recalc()">
                 <label for="serpentine">Serpentine (trade off by row)</label><br>
                 <input type="radio" id="rtol" name="flow" value="rtol" onchange="recalc()">
-                <label for="rtol">Right to Left</label><br/>
+                <label for="rtol">Right to Left</label><br/> -->
             </div>
             <div class="section">
                 <div class="slidecontainer">
