@@ -6,6 +6,8 @@ const defaultFirstColor = "#00ff00";
 const defaultSecondColor = "#ff00ff";
 const defaultThirdColor = "#0000ff";
 
+const sizeOfControls = 300;
+
 const pixelSizes = {
     "square": [5, 6, 8, 10, 14, 18, 27, 40, 80],
     "triangle": [6, 8, 10, 14, 18, 27, 40, 60, 80, 100],
@@ -636,13 +638,12 @@ function populatePopUp() {
         popupDesc.innerText = "";
     }
 
-    if ("up_pixel" in currKernel) {
+    if ("odd_pixel" in currKernel) {
         popupDesc.innerHTML += "<p>This is a double kernel, with different matrices for up-facing (odd) pixels vs. down-facing (even) pixels.</p>"
     }
 
     nums = {};
 
-    let kernelsWrapper = document.getElementById("popupContent");
     // if it is not a triangle, the default case
     if (state.shape != "triangle" && state.shape != "righttriangle" && state.shape != "righttriangle_rev")
     {        
@@ -658,8 +659,8 @@ function populatePopUp() {
             _drawDitherMap(currKernel, "kernelMap");
             _drawDitherMap(currKernel, "kernelMap_Down", true);
         } else {
-            _drawDitherMap(currKernel.up_pixel, "kernelMap");
-            _drawDitherMap(currKernel.down_pixel, "kernelMap_Down", true);
+            _drawDitherMap(currKernel.even_pixel, "kernelMap");
+            _drawDitherMap(currKernel.odd_pixel, "kernelMap_Down", true);
         }    
     }
 
@@ -891,26 +892,8 @@ var originalWidth;
 (function() {
     ds = DitherStudies();
 
-    document.addEventListener('keydown', (event) => {
-        var codeValue = event.code;
-       
-        // Keyboard shortcuts
-        // if (codeValue == 'ArrowRight') {
-        //     document.getElementById("colorslide0").value = document.getElementById("colorslide0").valueAsNumber + 1
-        //     adjSliders(document.getElementById("colorslide0"))
-        // }
-        // if (codeValue == 'ArrowLeft') {
-        //     document.getElementById("colorslide0").value = document.getElementById("colorslide0").valueAsNumber - 1
-        //     adjSliders(document.getElementById("colorslide0"))
-        // }
-        // if (codeValue == 'KeyD') {
-        //     // FIXME: doesn't seem to work
-        //     $('#download').click();
-        // }
-      }, false);
-
     canvas = document.getElementById("ditherCanvas");
-    canvas.width = document.body.clientWidth - 300;
+    canvas.width = document.body.clientWidth - sizeOfControls;
     canvas.height = document.body.clientHeight;
 
     originalWidth = canvas.width; // global, used for pixel calculation
@@ -965,7 +948,7 @@ var originalWidth;
         populatePopUp();
 
         canvas = document.getElementById("ditherCanvas");
-        canvas.width = document.body.clientWidth - 300;
+        canvas.width = document.body.clientWidth - sizeOfControls;
         canvas.height = document.body.clientHeight;
 
         let height = document.getElementById('ditherCanvas').clientHeight;
