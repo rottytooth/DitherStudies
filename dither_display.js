@@ -280,7 +280,15 @@ function getRowCount(shape, height, pixelSize) {
             offset_h = 1.2;
             break;
     }
-    document.getElementById('ditherCanvas').width = (origcols + offset_h) * pixelSize * offset;
+
+    calculated_width = (origcols + offset_h) * pixelSize * offset;
+    canvas_width = document.getElementById('ditherCanvas').width;
+    // only expand if calc width is wider than original size
+    if (document.getElementById('ditherCanvas').width < calculated_width) {
+        document.getElementById('ditherCanvas').width = calculated_width;
+    } else {
+        document.getElementById('ditherCanvas').width = canvas_width - pixelSize * (canvas_width % pixelSize);
+    }
 
     return [rows, cols];
 }
