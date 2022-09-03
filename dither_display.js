@@ -276,18 +276,16 @@ function getRowCount(shape, height, pixelSize) {
         case 'hexagon':
             rows *= 2;
             cols = Math.floor(originalWidth / (pixelSize * 1.5));
-            rows += 3;
+            rows += 1;
             offset_h = 1.2;
             break;
     }
 
-    calculated_width = (origcols + offset_h) * pixelSize * offset;
-    canvas_width = document.getElementById('ditherCanvas').width;
-    // only expand if calc width is wider than original size
-    if (document.getElementById('ditherCanvas').width < calculated_width) {
+    calculated_width = (origcols + offset_h) * pixelSize * offset;    // only expand if calc width is wider than original size
+    if (originalWidth > calculated_width) {
         document.getElementById('ditherCanvas').width = calculated_width;
     } else {
-        document.getElementById('ditherCanvas').width = canvas_width - pixelSize * (canvas_width % pixelSize);
+        document.getElementById('ditherCanvas').width = Math.ceil(originalWidth / pixelSize) * pixelSize;
     }
 
     return [rows, cols];
