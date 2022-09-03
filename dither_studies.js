@@ -115,11 +115,11 @@ const DitherStudies = () => {
     function _getcoefset(algorithm, x) {
         coefset = DitherStudies.kernels[algorithm];
 
-        if ("up_pixel" in coefset) {
+        if ("even_pixel" in coefset) {
             if (x % 2 == 0) {
-                coefset = coefset.down_pixel;
+                coefset = coefset.odd_pixel;
             } else {
-                coefset = coefset.up_pixel;
+                coefset = coefset.even_pixel;
             }
         }
 

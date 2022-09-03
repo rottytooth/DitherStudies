@@ -142,13 +142,13 @@ DitherStudies.kernels = {
     },
     "RightTriangle_BiDirectional": {
         "name" : "RightTri Bi-Directional",
-        "up_pixel": {
+        "even_pixel": {
             "start_x" : 1,
             "start_y" : 0,
             "denom" : 16,
             "nums" : [[0, 0, 11], [1, 3, 1]]    
         },
-        "down_pixel": {
+        "odd_pixel": {
             "start_x" : 1,
             "start_y" : 0,
             "denom" : 16,

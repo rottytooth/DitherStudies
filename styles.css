@@ -190,6 +190,12 @@ select {
   position: relative;
   vertical-align: middle;
 }
+#colorLabel {
+  padding-right: 10px; 
+  float: left; 
+  vertical-align: baseline; 
+  line-height: 30px;
+}
   .hex img {
     margin-top: -1px;
   }
@@ -197,7 +203,15 @@ select {
     float: left;
     margin: 0 5px 5px 0;
     width: 60px;
+    height: 30px;
     position: relative;
+  }
+  .btn-small {
+    height: 30px;
+  }
+  .small img {
+    height: 20px; 
+    vertical-align: middle;
   }
   .button label,
   .button input {
