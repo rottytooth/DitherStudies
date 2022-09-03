@@ -32,7 +32,7 @@ function updateDisplay(height, width) {
 
     state = decodeLocation(); // current state, drawn from url
 
-    const [rows, cols] = getRowCount(state.shape, height, width, state.pixelSize);
+    const [rows, cols] = getRowCount(state.shape, height, state.pixelSize);
 
     matrix = ds.calculateDither(state.palette, state.colorToDither, state.algo, state.flow, rows, cols);
 
@@ -89,18 +89,22 @@ const decodeLocation = () => {
     };
 }
 
+// These are for the Kernel Pop-Up
 function open_kernel_popup() {
     document.getElementById("kernelPopUp").style.display = 'block';
     document.getElementById("kernelBackground").style.display = 'block';
+
+    document.getElementById("kernelBackground").style.height = document.getElementById("kernelPopUp").clientHeight + "px";
 }
 function close_kernel_popup() {
     document.getElementById("kernelPopUp").style.display = 'none';
     document.getElementById("kernelBackground").style.display = 'none';
 }
 
+/*
+ * Draw the actual dither, pixel by pixel
+ */
 function drawDither(matrix, pixelSize, shape, rows, cols) {
-
-    // updateLink();
 
     var c = document.getElementById("ditherCanvas");
     var ctx = c.getContext("2d");
@@ -240,10 +244,8 @@ function drawDither(matrix, pixelSize, shape, rows, cols) {
     }
 }
 
-// Given the height and width of the canvas and the shape and size of the pixel, returns 
-// the number of rows and cols and adjusts the size of the canvas to the largest that looks 
-//right for that shape
-function getRowCount(shape, height, width, pixelSize) {
+// Given the height and width of the canvas and the shape and size of the pixel, returns the number of rows and cols and adjusts the size of the canvas to the largest that looks right for that shape
+function getRowCount(shape, height, pixelSize) {
 
     rows = Math.floor(height / pixelSize);
     cols = Math.floor(originalWidth / pixelSize);
@@ -267,14 +269,13 @@ function getRowCount(shape, height, width, pixelSize) {
             break;
         case 'hexagon_rev':
             rows *= 2;
-            cols = Math.ceil(cols * 23.0/40.0);
-            cols -= 1;
+            cols = Math.floor(originalWidth / (pixelSize * HEX_SIDE_TO_HEIGHT));
+            cols += 2;
             offset = HEX_SIDE_TO_HEIGHT;
             break;
         case 'hexagon':
             rows *= 2;
-            cols = Math.ceil(cols * 23.0/40.0);
-            cols -= 2;
+            cols = Math.floor(originalWidth / (pixelSize * 1.5));
             rows += 3;
             offset_h = 1.2;
             break;
@@ -443,7 +444,12 @@ function recalc() {
     let shape = currshape();
     let pixelSize = currPixelSize();
 
-    updateLocation(palette, slider_values, finalcolor, document.getElementById("ditheringAlgorithm").value, flow, pixelSize, shape);
+    algoselect = document.getElementById("ditheringAlgorithm");
+
+    updateLocation(palette, slider_values, finalcolor, algoselect.value, flow, pixelSize, shape);
+
+    // set See Kernel link
+    document.getElementById("see_kernel").innerText = `About ${algoselect.options[algoselect.selectedIndex].text}`;
 
     populatePopUp();
 
@@ -541,7 +547,7 @@ function createColorChildControls(colorslength) {
 function populateDitherDropDown() {
     state = decodeLocation();
 
-    $("#ditheringAlgorithm").empty();
+    document.getElementById("ditheringAlgorithm").innerText = "";
     shape = currshape();
 
     kern_list = DitherStudies.kernels;
@@ -555,7 +561,9 @@ function populateDitherDropDown() {
     }); 
 
     group_list.forEach(group => { 
-        let $optgroup = $(`<optgroup label='${group}'>`);
+        let optgroup = document.createElement("optgroup");
+        optgroup.setAttribute("label", group);
+
         let added = false;
 
         filtered = dither_list.filter(a => a.group == group);
@@ -568,13 +576,13 @@ function populateDitherDropDown() {
                     selected = "selected='selected'";
                 }
                 let op = `<option value='${dither.key}' ${selected}>${dither.name}</option>`;
-                $optgroup.append(op);    
+                optgroup.innerHTML += op;    
                 added = true;
             }
         }
 
         if (added)
-            $("#ditheringAlgorithm").append($optgroup);
+            document.getElementById("ditheringAlgorithm").appendChild(optgroup);
     });
 }
 
@@ -589,7 +597,7 @@ function setSizeSlider() {
     if (!value) {
         value = pixelSizes[state.shape].length - 2;
     }
-    $('#pixelsize').val(value);
+    document.getElementById("pixelsize").value = value;
 }
 
 // square vs triangle etc: update
@@ -607,55 +615,79 @@ function populatePopUp() {
     let currentDitherLbl = document.getElementById("currentDither");
     let currKernel = DitherStudies.kernels[state.algo];
     currentDitherLbl.innerText = currKernel.name;
+    let popupDesc = document.getElementById("popupDesc");
+
+    popupDesc.innerText = ""
+    if ("desc" in currKernel) {
+        if (Array.isArray(currKernel.desc)) {
+            popupDesc.innerHTML = "";
+            for (var i = 0; i < currKernel.desc.length; i++) {
+                popupDesc.innerHTML += `<p>${currKernel.desc[i]}</p>`;
+            }
+        } else
+            popupDesc.innerHTML += `<p>${currKernel.desc}</p>`;
+    } else {
+        popupDesc.innerText = "";
+    }
+
+    if ("up_pixel" in currKernel) {
+        popupDesc.innerHTML += "<p>This is a double kernel, with different matrices for up-facing (odd) pixels vs. down-facing (even) pixels.</p>"
+    }
 
     nums = {};
+
+    let kernelsWrapper = document.getElementById("popupContent");
     // if it is not a triangle, the default case
     if (state.shape != "triangle" && state.shape != "righttriangle" && state.shape != "righttriangle_rev")
     {        
-        nums = currKernel.nums;
-        let kernelDenom = document.getElementById("kernelDenom")
-        // kernelDenom.innerText = "Denominator: " + currKernel.denom;
-    
-        DrawDitherKernel(document.getElementById("kernelMap"), nums, currKernel.start_x, currKernel.start_y, currKernel.denom);
+        _drawDitherMap(currKernel, "kernelMap");
 
         let downker = document.getElementById("kernelMap_Down");
-        downker.width = downker.width;
-    } else { // triangles (because they can have up and down kernels)
-        if ('nums' in currKernel) {
-            nums = currKernel.nums;
-        } else {
-            nums = currKernel.nums_even;
-        }
-    
-        DrawDitherKernel(document.getElementById("kernelMap"), nums, currKernel.start_x, currKernel.start_y, currKernel.denom);
+        downker.width = 0;
+        downker.height = document.getElementById("kernelMap").height;
+
+    } else { // triangles have up and down kernels, so need two canvases
 
         if ('nums' in currKernel) {
-            nums = currKernel.nums;
+            _drawDitherMap(currKernel, "kernelMap");
+            _drawDitherMap(currKernel, "kernelMap_Down", true);
         } else {
-            nums = currKernel.nums_odd;
-        }
-    
-        DrawDitherKernel(document.getElementById("kernelMap_Down"), nums, currKernel.start_x, currKernel.start_y, currKernel.denom, true);
+            _drawDitherMap(currKernel.up_pixel, "kernelMap");
+            _drawDitherMap(currKernel.down_pixel, "kernelMap_Down", true);
+        }    
     }
-    // currently, start_x, start_y, and denom are shared by the up and down
-    // this might not be true in the future
+
+    document.getElementById("kernelBackground").style.height = document.getElementById("kernelPopUp").clientHeight + "px";
 }
 
-function DrawDitherKernel(c, nums, start_x, start_y, denom, flip=false) {
+function _drawDitherMap(currKernel, kernelDivName, flip=false) {
+    let c = document.getElementById(kernelDivName);
+    c.width = document.getElementById("popupContent").clientWidth / 2.0 - 3;
+    c.height = 300;
+
+    last_y = _drawDitherKernel(c, currKernel.nums, currKernel.start_x, currKernel.start_y, currKernel.denom, flip);
+
+    c.height = last_y + 5;
+
+    _drawDitherKernel(c, currKernel.nums, currKernel.start_x, currKernel.start_y, currKernel.denom, flip);
+}
+
+function _drawDitherKernel(c, nums, start_x, start_y, denom, flip=false) {
     let state = decodeLocation();
     let ctx = c.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     flip = flip ? 1 : 0
 
-    c.width = 500;
-    c.height = 300;
-
     ctx.lineWidth = 2;
 
     let pixelSize = 50;
     ctx.font = "20px Lato, sans-serif";
     ctx.textAlign = 'center';
+
+
+    let last_x = 0;
+    let last_y = 0;
 
     for (let y = 0; y < nums.length; y++) {
         for (let x = 0; x < nums[0].length; x++) {
@@ -664,15 +696,22 @@ function DrawDitherKernel(c, nums, start_x, start_y, denom, flip=false) {
             oddrow = Math.abs(y - start_y) % 2 != 0;
             oddcol = Math.abs(x - start_x) % 2 != flip;
 
-            last_x = 0;
-            last_y = 0;
-
             if (y < start_y || (y == start_y && x < start_x)) {
                 continue;
             }
-            else if (y == start_y && x == start_x) {
+            
+            if (y == start_y && x == start_x) {
                 content = "\u00d7";
             }
+            else if (content == 0) {
+                if (nums[y].slice(0,x).length == 0 || nums[y].slice(0,x).reduce((a,b) => a + b) == 0)
+                    continue;
+                if (nums[y].slice(x).length == 0 || nums[y].slice(x).reduce((a,b) => a + b) == 0)
+                    continue;
+            }
+
+            
+
             // Yes, this is all cut-and-pasted from drawDither() above then with little changes made to it, and the whole thing should be refactored to combine the two
             switch(state.shape) {
                 case "square":
@@ -779,8 +818,8 @@ function DrawDitherKernel(c, nums, start_x, start_y, denom, flip=false) {
 
                     let sidelenrev = (triPixelSize * HEX_SIDE_TO_HEIGHT) / 2.0;
 
-                    let start_x = x * sidelenrev * 2.0 + 80;
-                    let start_y = y * triPixelSize * 1.5 + 30;
+                    let start_x = x * sidelenrev * 2.0 + 35;
+                    let start_y = y * triPixelSize * 1.5 + 5;
     
                     if (oddrow) {
                         start_x += sidelenrev;
@@ -834,6 +873,10 @@ function DrawDitherKernel(c, nums, start_x, start_y, denom, flip=false) {
         }
     }
     ctx.fillText("/ " + denom, last_x + pixelSize / 2 + 10, last_y - pixelSize / 2 + 10);
+
+    if (state.shape == "hexagon_rev")
+        last_y += 7;
+    return last_y;
 }
 
 var originalWidth;
@@ -854,11 +897,10 @@ var originalWidth;
         //     document.getElementById("colorslide0").value = document.getElementById("colorslide0").valueAsNumber - 1
         //     adjSliders(document.getElementById("colorslide0"))
         // }
-        if (codeValue == 'KeyD') {
-            // FIXME: doesn't seem to work
-            $('#download').click();
-            // save_img_jquery($('#download'), 'ditherCanvas')
-        }
+        // if (codeValue == 'KeyD') {
+        //     // FIXME: doesn't seem to work
+        //     $('#download').click();
+        // }
       }, false);
 
     canvas = document.getElementById("ditherCanvas");
@@ -875,7 +917,13 @@ var originalWidth;
             document.getElementById('ditherCanvas').clientWidth);        
     }
     state = decodeLocation();
-    $("input[name=shape][value=" + state.shape + "]").prop('checked', true);
+
+    elems = document.getElementsByName('shape');
+    for (let i = 0; i < elems.length; i++) {
+        if (elems[i].value == state.shape) {
+            elems[i].checked = true;
+        }
+    }
 
     document.getElementById("ditheringAlgorithm").onchange = recalc;
 
@@ -887,19 +935,39 @@ var originalWidth;
         }
     }
 
-    // document.getElementById("colorList").onchange = updateColorControls;
-    // document.getElementById('colorList').value = state.palette.length;
-
-    $("input[name=flow][value=" + state.flow + "]").prop('checked', true);
+    var color_nums = document.getElementsByName("flow");
+    for (let i = 0; i < color_nums.length; i++) {
+        color_nums[i].onchange = updateColorControls;
+        if (color_nums[i].value == state.flow) {
+            color_nums[i].checked = true;
+        }
+    }
 
     populateDitherDropDown();
     createColorControls();
     setSizeSlider();
     populatePopUp();
 
+    algoselect = document.getElementById("ditheringAlgorithm");
+    document.getElementById("see_kernel").innerText = `About ${algoselect.options[algoselect.selectedIndex].text}`;
+
     let height = document.getElementById('ditherCanvas').clientHeight;
     let width = document.getElementById('ditherCanvas').clientWidth;
     updateDisplay(height, width);
+
+    window.addEventListener('resize', function() {
+        populatePopUp();
+
+        canvas = document.getElementById("ditherCanvas");
+        canvas.width = document.body.clientWidth - 300;
+        canvas.height = document.body.clientHeight;
+
+        let height = document.getElementById('ditherCanvas').clientHeight;
+        let width = document.getElementById('ditherCanvas').clientWidth;
+        updateDisplay(height, width);
+    });
+
+    document.getElementById("ditherCanvas").addEventListener("click", close_kernel_popup);
 
  })();
 

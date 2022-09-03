@@ -14,17 +14,30 @@ html, body {
 #kernelPopUp, #kernelBackground {
   position: absolute;
   width: calc(75% - 225px);
-  height: 75%;
+  /* height: 75%; */
   top: 12.5%;
   left: calc(12.5% - 75px);
+  display: none;
 }
 #kernelBackground {
   background-color: #fff;
-  opacity: 85%;
+  opacity: 93%;
   border-radius: 5px;
+  display: none;
 }
 #kernelsWrapper {
+  padding-top: 30px;
   display: table;
+}
+#popupDesc {
+  padding-top: 40px;
+}
+#popupDesc p {
+  padding-bottom: 20px;
+}
+#aboutDS {
+  background-color: #000;
+  color: #eee;
 }
 .kernelRow {
   display: table-row;
@@ -32,6 +45,7 @@ html, body {
 .kernelHolder {
   display: table-cell;
   text-align: center;
+  vertical-align: top;
 }
 #closePopup {
   width: 50px;
@@ -50,13 +64,10 @@ html, body {
   font-size: 36px;
 }
 #popupContent {
-  padding-top: 10px;
-  padding-left: 20px;
-  padding-right: 20px;
-  display: inline-block;
+  padding: 30px;
 }
-#kernelMap {
-  padding-top: 20px;
+#kernelMap, #kernelMap_Down {
+  padding-top: 10px;
   padding-left: 0;
   padding-right: 0;
   margin-left: auto;
@@ -73,9 +84,9 @@ h3 {
 #flowSection {
   padding-top: 10px;
 }
-input[type=radio] {
+/* input[type=radio] {
   margin-left: 15px;
-}
+} */
 #ditheringAlgorithm {
   margin-top: 20px;
 }
@@ -88,13 +99,9 @@ select {
 .colorpicker {
   width: 10%;
 }
-#shape_radios {
-  font-size: 150%;
-}
 #outerContainer {
     display: flex;
 }
-
 #bigContainer
 {
     flex: 1;
@@ -175,21 +182,23 @@ select {
     cursor: pointer; /* Cursor on hover */
   }
 
-  .button {
-    float: left;
-    margin: 0 5px 5px 0;
-    width: 50px;
-    height: 40px;
-    position: relative;
+.button {
+  float: left;
+  margin: 0;
+  width: 45px;
+  height: 34px;
+  position: relative;
+  vertical-align: middle;
+}
+  .hex img {
+    margin-top: -1px;
   }
-
-  .button + .small {
+  .button .small {
     float: left;
     margin: 0 5px 5px 0;
     width: 60px;
     position: relative;
   }
-
   .button label,
   .button input {
     display: block;
@@ -198,24 +207,28 @@ select {
     left: 0;
     right: 0;
     bottom: 0;
+    /* background-color: #eee; */
   }
-  
   .button input[type="radio"] {
     opacity: 0.011;
     z-index: 100;
   }
-  
   .button input[type="radio"]:checked + label {
-    background: #ccc;
-    border-radius: 4px;
+    background: #ddd;
   }
-  
+  .button input[type="radio"]:hover + label {
+    background: #ccc;
+  }
   .button label {
-    line-height: 35px;
+    /* line-height: 20px; */
     text-align: center;
     cursor: pointer;
     z-index: 90;
-    border: solid 1px #ccc;
-    border-radius: 4px;
+    border-right: solid 1px #ccc;
   }
-  
+  .button label.btn-last {
+    border-right: none;
+  }
+#dither_color_controls {
+  display: inline;
+}
