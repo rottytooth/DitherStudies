@@ -250,6 +250,56 @@ DitherStudies.kernels = {
         "group": "Other Shapes",
         "desc": "Produced by a genetic algorithm, this pattern creates grid-like patterns due to the spacing of pixels far to the left."
     },
+    "garb1": {
+        "name": "Arbitrary 1",
+        "start_x" : 2,
+        "start_y" : 0,
+        "denom" : 26,
+        "nums" : [[0, 0, 0, 0, 0, 0, 0], [17, 4, 6, 8, 3, 2, 1]],
+        "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
+        "group": "Low Scoring",
+        "desc": "Produced by a genetic algorithm, this pattern creates grid-like patterns due to the spacing of pixels far to the left."
+    },
+    "garb2": {
+        "name": "Arbitrary 2",
+        "start_x" : 3,
+        "start_y" : 0,
+        "denom" : 50,
+        "nums" : [[0, 0, 0, 0, 0, 27, 0], [9, 4, 6, 8, 3, 2, 1], [9, 4, 6, 8, 3, 2, 50]],
+        "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
+        "group": "Low Scoring",
+        "desc": "Produced by a genetic algorithm, this pattern creates grid-like patterns due to the spacing of pixels far to the left."
+    },
+    "garb3": {
+        "name": "Arbitrary 3",
+        "start_x" : 3,
+        "start_y" : 0,
+        "denom" : 50,
+        "nums" : [[0, 0, 0], [9, 4, 6]],
+        "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
+        "group": "Low Scoring",
+        "desc": "Produced by a genetic algorithm, this pattern creates grid-like patterns due to the spacing of pixels far to the left."
+    },
+    "garb4": {
+        "name": "Arbitrary 4",
+        "start_x" : 3,
+        "start_y" : 0,
+        "denom" : 20,
+        "nums" : [[0, 0, 1], [9, 4, 6]],
+        "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
+        "group": "Low Scoring",
+        "desc": "Produced by a genetic algorithm, this pattern creates grid-like patterns due to the spacing of pixels far to the left."
+    },
+    "garb5": {
+        "name": "Arbitrary 5",
+        "start_x" : 5,
+        "start_y" : 0,
+        "denom" : 50,
+        "nums" : [[0, 0, 0, 0, 0, 0, 4], [7, 4, 6, 11, 6, 12, 1]],
+        "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
+        "group": "Low Scoring",
+        "desc": "Produced by a genetic algorithm, this pattern creates grid-like patterns due to the spacing of pixels far to the left."
+    },
 }
 
 
