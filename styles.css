@@ -135,11 +135,13 @@ select {
 .slider_psize {
   display: inline-block;
   vertical-align: middle;
-  width: 80%;
+  width: 78%;
   margin-left: 5px;
 }
 #pixelSizeLabel {
   padding: 2px;
+  vertical-align: baseline;
+  margin-top: 40px;
 }
 
 /* The slider itself */
@@ -190,7 +192,7 @@ select {
   position: relative;
   vertical-align: middle;
 }
-#colorLabel {
+.choiceLabel {
   padding-right: 10px; 
   float: left; 
   vertical-align: baseline; 

@@ -72,7 +72,7 @@
             </div>
 
             <div id="dither_color_controls">
-                <div id="colorLabel">Colors: </div>
+                <div class="choiceLabel">Colors: </div>
                 <div class="button small">
                     <input type="radio" id="colorlistsize_2" name="colorListSize" value="2" checked="checked"><label class="btn btn-small"  style="text-align: center" for="colorlistsize_2"><img src="icons/two_color.svg" style="height: 20px"/></label>
                 </div>
@@ -87,19 +87,20 @@
             </div>
 
             <div class="section" id="flowSection">
+                <div class="choiceLabel">Flow: </div>
                 <div class="button small">
-                    <input type="radio" id="ltor" name="flow" value="ltor" onchange="recalc()" checked="checked"><label class="btn btn-default" for="ltor">&#x21C9;</label>
+                    <input type="radio" id="ltor" name="flow" value="ltor" onchange="recalc()" checked="checked"><label class="btn btn-default" for="ltor"><img src="icons/U+21C9.svg"/></label>
                 </div>
                 <div class="button small">
-                    <input type="radio" id="serpentine" name="flow" value="serpentine" onchange="recalc()" checked="checked"><label class="btn btn-default" for="serpentine">&#x21C4;</label>
+                    <input type="radio" id="serpentine" name="flow" value="serpentine" onchange="recalc()" checked="checked"><label class="btn btn-default" for="serpentine"><img src="icons/U+21C4.svg"/></label>
                 </div>
                 <div class="button small">
-                    <input type="radio" id="rtol" name="flow" value="rtol" onchange="recalc()" checked="checked"><label class="btn btn-default" for="rtol">&#x21C7;</label>
+                    <input type="radio" id="rtol" name="flow" value="rtol" onchange="recalc()" checked="checked"><label class="btn btn-default" for="rtol"><img src="icons/U+21C7.svg"/></label>
                 </div>
             </div>
             <div class="section">
                 <div class="slidecontainer">
-                    <label for="pixelsize" id="pixelSizeLabel">Size</label>
+                    <label for="pixelsize" id="pixelSizeLabel">Size: </label>
                     <input id="pixelsize" type="range" min="0" max="8" value="3" class="slider_psize" onchange="setPixelSize()">
 
                     <a style="color: blue; cursor: pointer;" id="download">Download Image</a>

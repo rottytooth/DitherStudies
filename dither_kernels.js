@@ -79,7 +79,7 @@ DitherStudies.kernels = {
         "nums" : [[0, 0, 0, 7, 5], [3, 5, 7, 5, 3], [1, 3, 5, 3, 1]],
         "shapes": ["square","righttriangle","righttriangle_rev","triangle"],
         "group": "JaJuNi and Variants",
-        "desc" : "JaJuNi was developed around the same time as Floyd-Steinberg and also inspired a number of variations. It is far more complex than FS, although generally considered to have fewer visual artifacts when applied to photographic images."
+        "desc" : "JaJuNi was developed at the same time as Floyd-Steinberg, and has also inspired a number of variations, usually with twelve cells like JaJuNi. This algorithm is more complex than FS, but is generally considered to create more clear contrast at the outside of shapes and to have fewer visual artifacts."
     },
     "Stucki" : {
         "name" : "Stucki", 
@@ -89,7 +89,7 @@ DitherStudies.kernels = {
         "nums" : [[0, 0, 0, 8, 4], [2, 4, 8, 4, 2], [1, 2, 4, 2, 1]],
         "shapes": ["square","righttriangle","righttriangle_rev","triangle"],
         "group": "JaJuNi and Variants",
-        "desc": "Published in 1981 by an IBM Research Lab in Switzerland. Finer grained modification of Jarvis-Judice-Ninke with error distribution more locally concentrated. From \"MECCA - A Multiple-Error Correcting Computation Algorithm for Bilevel Image Hard Copy Reproductions\""
+        "desc": "Stucki's refinement of JaJuni avoids sharpening of images, with more locally concentrated error distribution. Introduced in \"MECCA - A Multiple-Error Correcting Computation Algorithm for Bilevel Image Hard Copy Reproductions\" published in 1981."
     },
     "Burkes" : {
         "name" : "Burkes", 
@@ -109,7 +109,7 @@ DitherStudies.kernels = {
         "nums" : [[0, 0, 0, 5, 3], [2, 4, 5, 4, 2], [0, 2, 3, 2, 0]],
         "shapes": ["square","righttriangle","righttriangle_rev","triangle"],
         "group": "JaJuNi and Variants",
-        "desc": "Created by Frankie Sierra. Simplified from Jarvis but giving similar results."
+        "desc": "Created by Frankie Sierra. A much smaller kernel than Jarvis that produces similar results."
     },
     "TwoRowSierra" : {
         "name" : "Two-Row Sierra", 
@@ -119,14 +119,14 @@ DitherStudies.kernels = {
         "nums" : [[0, 0, 0, 4, 3], [1, 2, 3, 2, 1]],
         "shapes": ["square","righttriangle","righttriangle_rev","triangle"],
         "group": "JaJuNi and Variants",
-        "desc": "Created by Frankie Sierra. A simplification of the Sierra kernel, brought down to two rows."
+        "desc": "Created by Frankie Sierra. A simplification of the Sierra kernel—itself a simplification of JaJuNi—here brought down to two rows."
     },
     "StephensonArce": {
         "name" : "Stephenson Arce",
-        "start_x" : 1,
+        "start_x" : 2,
         "start_y" : 0,
         "denom" : 200,
-        "nums" : [[0,0,32,0],[12,26,30,16],[12,26,12,0],[5,12,12,5]],
+        "nums" : [[0,0,0,32],[12,26,30,16],[0,12,26,12],[5,12,12,5]],
         "shapes": ["square","hexagon","hexagon_rev"],
         "group": "Other Shapes",
         "desc": "Designed for the hexagonal layout of printer dots."

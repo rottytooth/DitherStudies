@@ -2,9 +2,13 @@
 const EQ_SIDE_TO_HEIGHT = Math.sqrt(3)/2;
 const HEX_SIDE_TO_HEIGHT = 1.732051;
 
-const defaultFirstColor = "#00ff00";
-const defaultSecondColor = "#ff00ff";
-const defaultThirdColor = "#0000ff";
+// FIXME: It would be better to not need to hard-code an avg color as part of this set, but use DitherStudies.getclosestcol() to determine it
+const colorsets = [
+    {first:"#00ff00",second:"#ff00ff",avg:"#e0c4b6"},
+    {first:"#ef4700",second:"#10b8ff",avg:"#c18986"},
+    {first:"#ffffff",second:"#000000",avg:"#777777"}
+]
+const defaultColorSet = colorsets[Math.floor(Math.random() * colorsets.length)];
 
 const sizeOfControls = 300;
 
@@ -53,15 +57,19 @@ const decodeLocation = () => {
     slidervals = decodeURIComponent(urlParams.get('s'));
     if (slidervals != null && slidervals != "null") {
         slidervals = slidervals.split(",");
+        slidervals = slidervals.map(function (x) { 
+            return parseInt(x); 
+          });
     }
     else slidervals = null;
 
     if (palette == null || slidervals == null) {
         // okay, we're missing palette or slidervals, let's just send the entire set of defaults
+
         return {
-            palette: [defaultFirstColor, defaultSecondColor],
-            colorToDither: d3.lab("#e0c4b6"),
-            slidervals: ['256','256'],
+            palette: [defaultColorSet.first, defaultColorSet.second],
+            colorToDither: d3.lab(defaultColorSet.avg),
+            slidervals: [256, 256],
             algo: 'FloydSteinberg',
             flow: 'ltor',
             pixelSize: 8,
@@ -365,24 +373,29 @@ function adjSliders(t) {
     // we don't have all the entries yet
     if (sliderLocs.length < sliders.length) {
         for (let i = 0; i < sliders.length; i++) {
-            sliderLocs[i] = sliders[i].value;
+            sliderLocs[i] = 255;
         }
     }
+
+    // sliderLocs is the set of sliders how they were before the change
 
     slidersum = 511 - sliderLocs[slider_changed]; // sum of the ones that did not change
 
     var newSliderLocs = [];
     for(let i = 0; i < sliders.length; i++) {
+
+        // if this is not the slider that's changed, offset the value to compensate for the change, keeping the original ratio between non-changed sliders
         if (slider_changed != i) {
-            document.getElementById("colorslide" + i).value = sliderLocs[i] * (512 - parseInt(document.getElementById("colorslide" + slider_changed).value)) / slidersum;
+            document.getElementById("colorslide" + i).value = parseInt(Math.floor(sliderLocs[i] * (512 - parseInt(document.getElementById("colorslide" + slider_changed).value)) / slidersum - 1));
         }
-        newSliderLocs[i] = document.getElementById("colorslide" + i).value;
+
+        // copy that new value to newSliderLocs
+        newSliderLocs[i] = parseInt(document.getElementById("colorslide" + i).value);
     }
 
     // check that the other sliders do not total more than they should
-    // let total_without_changed = sliderLocs.slice().splice(slider_changed,1).reduce((partialSum, a) => partialSum + a, 0);
     let total_avg = newSliderLocs.reduce((partialSum, a) => partialSum + parseInt(a), 0) / newSliderLocs.length;
-    if (total_avg > 256.0 || total_avg < 254) {
+    if (total_avg > 256.5 || total_avg < 254) {
         for(let i = 0; i < newSliderLocs.length; i++) {
             if (slider_changed != i) {
                 newSliderLocs[i] = newSliderLocs[i] - (total_avg - 256) / (newSliderLocs.length - 1);
@@ -476,6 +489,9 @@ function updateLocation(palette_cols, slider_values, starting_color, algorithm, 
 function updateColorControls() {
     color_count = document.querySelector('input[name="colorListSize"]:checked').value;
     createColorChildControls(color_count);
+    while (sliderLocs.length < color_count) {
+        sliderLocs.push(255);
+    } 
     recalc();
 }
 
@@ -485,6 +501,8 @@ function createColorControls() {
 
 // this can be called either from dropdown change or from querystring
 function createColorChildControls(colorslength) {
+    colorslength = parseInt(colorslength);
+
     state = decodeLocation();
 
     var sliders = document.getElementById("sliders");
@@ -503,7 +521,7 @@ function createColorChildControls(colorslength) {
     if ('slidervals' in state && state.slidervals != null) {
         sliderLocs = state.slidervals;
     }
-
+ 
     for (let i = 0; i < colorslength; i++) {
         var colorpicker = document.createElement("input");
         colorpicker.id = "colorpick" + i;
@@ -515,13 +533,10 @@ function createColorChildControls(colorslength) {
             colorpicker.setAttribute("value", prevColors[i]);
         } else if (i == 0) { 
             // no colors yet, use defaults
-            colorpicker.setAttribute("value", defaultFirstColor);
+            colorpicker.setAttribute("value", colorset.first);
         } else if (i == 1) {
-            // no colors yet, use default for second color
-            colorpicker.setAttribute("value", defaultSecondColor);
-        } else if (i == 2 && prevColors.length == 2 && prevColors[0] == defaultFirstColor && prevColors[1] == defaultSecondColor ) {
-            // the user has gone to three colors and not changed any color yet
-            colorpicker.setAttribute("value", defaultThirdColor);
+            // no second color yet, use default
+            colorpicker.setAttribute("value", colorset.second);
         } else {
             var colorList = [];
             for (let j = 0; j < i; j++) {
@@ -529,7 +544,6 @@ function createColorChildControls(colorslength) {
             }
             colorpicker.setAttribute("value", getComplementaryColor(colorList));
         }
-        // currColors[i] = colorpicker.getAttribute("value");
 
         var selectHolder = document.createElement("div");
         selectHolder.setAttribute("class", "slidecontainer");
@@ -539,8 +553,8 @@ function createColorChildControls(colorslength) {
         selectSlide.setAttribute("type", "range");
         selectSlide.setAttribute("min", "0");
         selectSlide.setAttribute("max", "511");
-        if (sliderLocs.length < i) {
-            sliderLocs[i] = 512/(sliderLocs.length + 1);
+        if (sliderLocs.length <= i) {
+            sliderLocs[i] = 255; //512/(sliderLocs.length + 1);
         }
         selectSlide.setAttribute("value", sliderLocs[i]);
         selectSlide.setAttribute("class", "slider");
@@ -549,6 +563,19 @@ function createColorChildControls(colorslength) {
         selectHolder.appendChild(selectSlide);
         sliders.appendChild(colorpicker);
         sliders.appendChild(selectHolder);
+    }
+
+    // we've lost a color, re-balance the remaining ones
+    if (colorslength < prevColors.length) {
+        totval = 0;
+        for (let i = 0; i < colorslength; i++) {
+            totval += parseInt(document.getElementById("colorslide" + i).getAttribute("value"));
+        }
+
+        for (let i = 0; i < colorslength; i++) {
+            currval = document.getElementById("colorslide" + i).getAttribute("value");
+            document.getElementById("colorslide" + i).setAttribute("value", currval * (512 / totval) - 1);
+        }
     }
 }
 
