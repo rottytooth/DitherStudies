@@ -36,9 +36,9 @@
             <canvas id="ditherCanvas"></canvas>
         </div>
         <div id="contols_wrapper"><div id="controls">
-            <h1>Dither Studies</h1>
-            <h3>A Contentless Dithering System by Daniel Temkin</h3>
-            <h3><a href="https://danieltemkin.com/DitherStudies/About/">About</a></h3>
+            <h1 id="toptitle"><span id="dithertitle">Dither</span> <span id="studiestitle">Studies</span></h1>
+            <h3><span id="subtitle_line1">A Contentless Dithering</span><span id="subtitle_line2">System by Daniel Temkin</span></h3>
+            <h3><a href="https://danieltemkin.com/DitherStudies/About/" id="about_link">About</a></h3>
             <div class="section" id="shape_radios">
 
                 <div class="button">
@@ -70,7 +70,24 @@
                 <select id="ditheringAlgorithm"></select><br/>
                 <a style="color: blue; cursor: pointer;" id="see_kernel" onclick="open_kernel_popup()">See Kernel</a><br/>
             </div>
+            <div class="section" id="flowSection">
+                <div class="choiceLabel">Flow: </div>
+                <div class="button small">
+                    <input type="radio" id="ltor" name="flow" value="ltor" onchange="recalc()" checked="checked"><label class="btn btn-default" for="ltor"><img src="icons/U+21C9.svg"/></label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="serpentine" name="flow" value="serpentine" onchange="recalc()" checked="checked"><label class="btn btn-default" for="serpentine"><img src="icons/U+21C4.svg"/></label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="rtol" name="flow" value="rtol" onchange="recalc()" checked="checked"><label class="btn btn-default" for="rtol"><img src="icons/U+21C7.svg"/></label>
+                </div>
+                <div class="slidecontainer">
+                    <label for="pixelsize" id="pixelSizeLabel">Size: </label>
+                    <input id="pixelsize" type="range" min="0" max="8" value="3" class="slider_psize" onchange="setPixelSize()">
+                </div>
+            </div>
 
+            <hr/>
             <div id="dither_color_controls">
                 <div class="choiceLabel">Colors: </div>
                 <div class="button small">
@@ -86,24 +103,23 @@
                 <div id="sliders"></div>
             </div>
 
-            <div class="section" id="flowSection">
-                <div class="choiceLabel">Flow: </div>
-                <div class="button small">
-                    <input type="radio" id="ltor" name="flow" value="ltor" onchange="recalc()" checked="checked"><label class="btn btn-default" for="ltor"><img src="icons/U+21C9.svg"/></label>
-                </div>
-                <div class="button small">
-                    <input type="radio" id="serpentine" name="flow" value="serpentine" onchange="recalc()" checked="checked"><label class="btn btn-default" for="serpentine"><img src="icons/U+21C4.svg"/></label>
-                </div>
-                <div class="button small">
-                    <input type="radio" id="rtol" name="flow" value="rtol" onchange="recalc()" checked="checked"><label class="btn btn-default" for="rtol"><img src="icons/U+21C7.svg"/></label>
-                </div>
-            </div>
+            <hr/>
             <div class="section">
-                <div class="slidecontainer">
-                    <label for="pixelsize" id="pixelSizeLabel">Size: </label>
-                    <input id="pixelsize" type="range" min="0" max="8" value="3" class="slider_psize" onchange="setPixelSize()">
 
-                    <a style="color: blue; cursor: pointer;" id="download">Download Image</a>
+                <a style="color: blue; cursor: pointer;" id="download">Download Image</a>
+                <br/>
+
+                <div id="playbuttons">
+                    <div class="button small play" id="playbutton_play" onclick="play_and_download()">
+                        <img src="icons/U+23F5.svg" />
+                    </div>
+                    <div class="button small play activated" id="playbutton_stop" onclick="stop_play_and_download()">
+                        <img src="icons/U+23F8.svg" />
+                    </div>
+                    <input id="playspeed" type="range" min="0" max="7" value="4" class="slider_psize" style="width:130px;" onchange="changePlaySpeed()">
+                    <br/>
+                    <input type="checkbox" id="ch_download"/>
+                    <label for="ch_download">&#9888; Download each frame</label>
                 </div>
             </div>
         </div></div>
@@ -115,3 +131,4 @@
         };        
     </script>
 </body>
+</html>

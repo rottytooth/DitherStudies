@@ -2,12 +2,13 @@
 const EQ_SIDE_TO_HEIGHT = Math.sqrt(3)/2;
 const HEX_SIDE_TO_HEIGHT = 1.732051;
 
-// FIXME: It would be better to not need to hard-code an avg color as part of this set, but use DitherStudies.getclosestcol() to determine it
 const colorsets = [
     {first:"#00ff00",second:"#ff00ff",avg:"#e0c4b6"},
-    {first:"#ef4700",second:"#10b8ff",avg:"#c18986"},
-    {first:"#ffffff",second:"#000000",avg:"#777777"}
+    {first:"#ffffff",second:"#000000",avg:"#777777"},
+    {first:"#ff0033",second:"#00ffcc",avg:"#d0a97a"},
+    {first:"#7312ff",second:"#c5ff00",avg:"#ba96a9"}
 ]
+
 const defaultColorSet = colorsets[Math.floor(Math.random() * colorsets.length)];
 
 const sizeOfControls = 300;
@@ -314,9 +315,11 @@ function pad(num, size) {
 
 function save_img_jquery(link, canvasId) {
     link.href = document.getElementById(canvasId).toDataURL();
-    link.download = `dither_${pad(downloadCount.toString(),4)}.png`;
+    link.download = `dither_${pad(downloadCount.toString(),4)}.png`;    
     downloadCount++;
 }
+
+MARGIN = 30; // minimal hue margin difference for a randomized color
 
 // average the supplied colors and return their complement in hex form
 function getComplementaryColor(colorList) {
@@ -330,7 +333,27 @@ function getComplementaryColor(colorList) {
 
     // if we're going to end up with that average grey, pick a random bright color
     if (r_tot >= 253 && g_tot >= 253 && b_tot >= 253) {
+        if (!colorList.some(x => d3.hcl(x).l >= 98.0)) {
+            // if it doesn't have white
+            if (Math.random() < .2) {
+                return d3.hsl(0, 0, 100).formatHex();
+            }
+        }
+        if (!colorList.some(x => d3.hcl(x).l <= 1.0)) {
+            // if it doesn't have black
+            if (Math.random() < .2) {
+                return d3.hsl(0, 0, 0).formatHex();
+            }
+        }
         let hue = Math.floor(Math.random() * 360);
+        for (let i = 0; 
+            colorList.some(x => d3.hsl(x).h > hue - MARGIN) && 
+            colorList.find(x => d3.hsl(x).h < hue + MARGIN); 
+            i++) {
+                
+            hue = Math.floor(Math.random() * 360);
+            if (i > 6) break;
+        }
         new_color = d3.hsl(hue, 1, .5).formatHex();
         return new_color;
     }
@@ -366,6 +389,9 @@ function adjSliders(t) {
 
     slider_changed = parseInt(t.id.slice(-1));
 
+    // sliderLocs is the set of sliders how they were before the change
+    // we will use them to maintain the same ratio
+
     if (!sliderLocs || sliderLocs.length == 0) {
         sliderLocs = [];
     }
@@ -377,8 +403,6 @@ function adjSliders(t) {
         }
     }
 
-    // sliderLocs is the set of sliders how they were before the change
-
     slidersum = 511 - sliderLocs[slider_changed]; // sum of the ones that did not change
 
     var newSliderLocs = [];
@@ -386,6 +410,9 @@ function adjSliders(t) {
 
         // if this is not the slider that's changed, offset the value to compensate for the change, keeping the original ratio between non-changed sliders
         if (slider_changed != i) {
+            if (slidersum < 2) { // avoid divide-by-zero
+                document.getElementById("colorslide" + i).value = parseInt(Math.floor(sliderLocs[i] * (512 - parseInt(document.getElementById("colorslide" + slider_changed).value))));
+            }
             document.getElementById("colorslide" + i).value = parseInt(Math.floor(sliderLocs[i] * (512 - parseInt(document.getElementById("colorslide" + slider_changed).value)) / slidersum - 1));
         }
 
@@ -408,6 +435,41 @@ function adjSliders(t) {
     recalc();
 }
 
+const playspeeds = [4000,2000,1000,750,500,250,100,50]
+
+var player;
+
+function play() {
+    let download = document.getElementById("ch_download").checked;
+    let colorslide = document.getElementById("colorslide0");
+    colorslide.value++;
+    adjSliders(colorslide);
+    download_link = document.getElementById('download');
+
+    if (download) {
+        download_link.click();
+    }
+    if (colorslide.value >= 511) 
+        stop_play_and_download();
+}
+function play_and_download() {
+    document.getElementById("playbutton_play").classList.add("activated");
+    document.getElementById("playbutton_stop").classList.remove("activated");
+
+    clearInterval(player);
+    player = setInterval(play, playspeeds[document.getElementById("playspeed").value]);
+}
+function stop_play_and_download() {
+    document.getElementById("playbutton_play").classList.remove("activated");
+    document.getElementById("playbutton_stop").classList.add("activated");
+
+    clearInterval(player);
+}
+function changePlaySpeed() {
+    clearInterval(player);    
+    play_and_download();
+}
+
 function currshape() {
     // determine shape
     var radios = document.getElementsByName('shape');
@@ -427,6 +489,25 @@ function currPixelSize() {
     let idx = parseInt(document.getElementById('pixelsize').value);
     pixelSize = pixelSizes[shape][idx];
     return pixelSize;
+}
+
+function updateFlow(flow) {
+    if (flow == "ltor") {
+        document.getElementById("toptitle").style.transform = '';
+        document.getElementById("studiestitle").style.transform = '';
+        document.getElementById("subtitle_line1").style.transform = '';
+        document.getElementById("subtitle_line2").style.transform = '';
+    } else if (flow == "serpentine") {
+        document.getElementById("toptitle").style.transform = '';
+        document.getElementById("studiestitle").style.transform = 'scaleX(-1)';
+        document.getElementById("subtitle_line1").style.transform = '';
+        document.getElementById("subtitle_line2").style.transform = 'scaleX(-1)';
+    } else { // rtol
+        document.getElementById("toptitle").style.transform = 'scaleX(-1)';
+        document.getElementById("studiestitle").style.transform = '';
+        document.getElementById("subtitle_line1").style.transform = 'scaleX(-1)';
+        document.getElementById("subtitle_line2").style.transform = 'scaleX(-1)';
+    }
 }
 
 function recalc() {
@@ -461,6 +542,8 @@ function recalc() {
             break;
         }
     }
+
+    updateFlow(flow);
 
     let shape = currshape();
     let pixelSize = currPixelSize();

@@ -11,6 +11,13 @@ html, body {
     font-family: 'Lato', sans-serif;
     font-size: 14pt;
 }
+body {
+  margin-right: 5px;
+}
+hr {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
 #kernelPopUp, #kernelBackground {
   position: absolute;
   width: calc(75% - 225px);
@@ -74,14 +81,26 @@ html, body {
   margin-right: auto;
   display: block;
 }
-
+#see_kernel, #about_link {
+  display: inline-block;
+}
 .section, h1 {
   padding-bottom: 20px;
+}
+#studiestitle {
+  display: inline-block;
 }
 h3 {
   padding-bottom: 20px;
 }
+h3 span {
+  display: block;
+}
 #flowSection {
+  padding-top: 10px;
+  padding-bottom: 0px;
+}
+#see_kernel {
   padding-top: 10px;
 }
 /* input[type=radio] {
@@ -160,8 +179,24 @@ select {
 .slider {
   width: 95%;
 }
-
-  
+#playbuttons {
+  margin-top: 10px;
+}
+.play {
+    height: 40px;
+    cursor: pointer;
+    text-align: center;
+    padding-top: 3px;
+    padding-bottom: 1px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+.play:hover {
+    background-color: #d3d3d3;
+}
+.activated {
+  background-color: #d3d3d3;
+}
   /* Mouse-over effects */
   .slider:hover,  .slider_psize:hover {
     opacity: 1; /* Fully shown on mouse-over */
@@ -246,5 +281,5 @@ select {
     border-right: none;
   }
 #dither_color_controls {
-  display: inline;
+  display: inline-block;
 }
