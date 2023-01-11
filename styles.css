@@ -192,10 +192,10 @@ select {
     padding-right: 4px;
 }
 .play:hover {
-    background-color: #d3d3d3;
+    background-color: #ccc;
 }
 .activated {
-  background-color: #d3d3d3;
+  background-color: #ddd;
 }
   /* Mouse-over effects */
   .slider:hover,  .slider_psize:hover {

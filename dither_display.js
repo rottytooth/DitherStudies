@@ -2,6 +2,8 @@
 const EQ_SIDE_TO_HEIGHT = Math.sqrt(3)/2;
 const HEX_SIDE_TO_HEIGHT = 1.732051;
 
+const track_time = false;
+
 const colorsets = [
     {first:"#00ff00",second:"#ff00ff",avg:"#e0c4b6"},
     {first:"#ffffff",second:"#000000",avg:"#777777"},
@@ -28,6 +30,8 @@ var sliderLocs = []; // this will hold the prepopulated value of each of the col
 
 var ds; // this will be a DitherStudies object
 
+var prevTime = new Date();
+
 /*
  * Something has changed; time to update the display
  * 
@@ -44,6 +48,7 @@ function updateDisplay(height, width) {
     matrix = ds.calculateDither(state.palette, state.colorToDither, state.algo, state.flow, rows, cols);
 
     drawDither(matrix, state.pixelSize, state.shape, rows, cols);
+
 }
 
 // return current state. If state is not populated, return defaults
@@ -435,11 +440,18 @@ function adjSliders(t) {
     recalc();
 }
 
-const playspeeds = [4000,2000,1000,750,500,250,100,50]
+const playspeeds = [4000,2000,1000,750,500,250]
 
 var player;
 
 function play() {
+    if (track_time) {
+        startTime = new Date();
+        var timeDiff = startTime - prevTime;
+        console.log(`${timeDiff / 1000} since last frame`);
+        prevTime = startTime;
+    }
+
     let download = document.getElementById("ch_download").checked;
     let colorslide = document.getElementById("colorslide0");
     colorslide.value++;
@@ -451,6 +463,12 @@ function play() {
     }
     if (colorslide.value >= 511) 
         stop_play_and_download();
+
+    if (track_time) {
+        endTime = new Date();
+        var timeDiff = endTime - startTime; //in ms
+        console.log(`drew dither in ${timeDiff / 1000} seconds`);    
+    }
 }
 function play_and_download() {
     document.getElementById("playbutton_play").classList.add("activated");
