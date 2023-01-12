@@ -61,6 +61,16 @@ DitherStudies.kernels = {
         "group": "FS and Variants",
         "desc": "Created by Frankie Sierra. The simplest of Floyd-Steinberg variations."
     },
+    "FakeFloydSteinberg" : {
+        "name" : "Fake Floyd-Steinberg", 
+        "start_x" : 0,
+        "start_y" : 0,
+        "denom" : 8,
+        "nums" : [[0, 3], [3, 2]],
+        "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
+        "group": "FS and Variants",
+        "desc" : ["A simple Floyd-Steinberg alternative that sends no data in the backward direction on subsequent lines"]
+    },
     "Atkinson" : {
         "name" : "Atkinson", 
         "start_x" : 1,

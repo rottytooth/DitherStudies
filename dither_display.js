@@ -2,8 +2,6 @@
 const EQ_SIDE_TO_HEIGHT = Math.sqrt(3)/2;
 const HEX_SIDE_TO_HEIGHT = 1.732051;
 
-const track_time = false;
-
 const colorsets = [
     {first:"#00ff00",second:"#ff00ff",avg:"#e0c4b6"},
     {first:"#ffffff",second:"#000000",avg:"#777777"},
@@ -15,6 +13,8 @@ const defaultColorSet = colorsets[Math.floor(Math.random() * colorsets.length)];
 
 const sizeOfControls = 300;
 
+const margin = 30; // minimal hue margin difference for a randomized color
+
 const pixelSizes = {
     "square": [5, 6, 8, 10, 14, 18, 27, 40, 80],
     "triangle": [6, 8, 10, 14, 18, 27, 40, 60, 80, 100],
@@ -24,6 +24,8 @@ const pixelSizes = {
     "hexagon_rev": [3, 4, 5, 6, 8, 10, 14, 18, 27]
 };
 
+var isPlaying = false; // whether it is currently in "play" mode (running an animation)
+
 var downloadCount = 0; // this is for counting the images exported from the site in this session
 
 var sliderLocs = []; // this will hold the prepopulated value of each of the color sliders
@@ -31,6 +33,10 @@ var sliderLocs = []; // this will hold the prepopulated value of each of the col
 var ds; // this will be a DitherStudies object
 
 var prevTime = new Date();
+
+// We hold on to the previous matrix before drawing because in "play" mode, 
+// we don't want to draw exactly the same image that we had just displayed
+var prevMatrix = [];
 
 /*
  * Something has changed; time to update the display
@@ -48,7 +54,19 @@ function updateDisplay(height, width) {
     matrix = ds.calculateDither(state.palette, state.colorToDither, state.algo, state.flow, rows, cols);
 
     drawDither(matrix, state.pixelSize, state.shape, rows, cols);
+    
 
+    if (isPlaying && compareMatrices(prevMatrix, matrix)) {
+        // bypass this step in the animation and go to the next
+        console.log("Detected the frame was the same as the previous and skipped");
+        play();
+    }
+
+    prevMatrix = matrix;
+}
+
+function compareMatrices(matrix1, matrix2) {
+    return (JSON.stringify(matrix1) == JSON.stringify(matrix2));
 }
 
 // return current state. If state is not populated, return defaults
@@ -75,7 +93,7 @@ const decodeLocation = () => {
         return {
             palette: [defaultColorSet.first, defaultColorSet.second],
             colorToDither: d3.lab(defaultColorSet.avg),
-            slidervals: [256, 256],
+            slidervals: [128, 128],
             algo: 'FloydSteinberg',
             flow: 'ltor',
             pixelSize: 8,
@@ -106,7 +124,7 @@ const decodeLocation = () => {
 }
 
 // These are for the Kernel Pop-Up
-function open_kernel_popup() {
+function openKernelPopup() {
     document.getElementById("kernelPopUp").style.display = 'block';
     document.getElementById("kernelBackground").style.display = 'block';
 
@@ -324,8 +342,6 @@ function save_img_jquery(link, canvasId) {
     downloadCount++;
 }
 
-MARGIN = 30; // minimal hue margin difference for a randomized color
-
 // average the supplied colors and return their complement in hex form
 function getComplementaryColor(colorList) {
     var r_tot = 0, g_tot = 0, b_tot = 0;
@@ -352,8 +368,8 @@ function getComplementaryColor(colorList) {
         }
         let hue = Math.floor(Math.random() * 360);
         for (let i = 0; 
-            colorList.some(x => d3.hsl(x).h > hue - MARGIN) && 
-            colorList.find(x => d3.hsl(x).h < hue + MARGIN); 
+            colorList.some(x => d3.hsl(x).h > hue - margin) && 
+            colorList.find(x => d3.hsl(x).h < hue + margin); 
             i++) {
                 
             hue = Math.floor(Math.random() * 360);
@@ -404,11 +420,11 @@ function adjSliders(t) {
     // we don't have all the entries yet
     if (sliderLocs.length < sliders.length) {
         for (let i = 0; i < sliders.length; i++) {
-            sliderLocs[i] = 255;
+            sliderLocs[i] = 128;
         }
     }
 
-    slidersum = 511 - sliderLocs[slider_changed]; // sum of the ones that did not change
+    slidersum = 255 - sliderLocs[slider_changed]; // sum of the ones that did not change
 
     var newSliderLocs = [];
     for(let i = 0; i < sliders.length; i++) {
@@ -416,9 +432,9 @@ function adjSliders(t) {
         // if this is not the slider that's changed, offset the value to compensate for the change, keeping the original ratio between non-changed sliders
         if (slider_changed != i) {
             if (slidersum < 2) { // avoid divide-by-zero
-                document.getElementById("colorslide" + i).value = parseInt(Math.floor(sliderLocs[i] * (512 - parseInt(document.getElementById("colorslide" + slider_changed).value))));
+                document.getElementById("colorslide" + i).value = parseInt(Math.floor(sliderLocs[i] * (256 - parseInt(document.getElementById("colorslide" + slider_changed).value))));
             }
-            document.getElementById("colorslide" + i).value = parseInt(Math.floor(sliderLocs[i] * (512 - parseInt(document.getElementById("colorslide" + slider_changed).value)) / slidersum - 1));
+            document.getElementById("colorslide" + i).value = parseInt(Math.floor(sliderLocs[i] * (256 - parseInt(document.getElementById("colorslide" + slider_changed).value)) / slidersum - 1));
         }
 
         // copy that new value to newSliderLocs
@@ -427,10 +443,10 @@ function adjSliders(t) {
 
     // check that the other sliders do not total more than they should
     let total_avg = newSliderLocs.reduce((partialSum, a) => partialSum + parseInt(a), 0) / newSliderLocs.length;
-    if (total_avg > 256.5 || total_avg < 254) {
+    if (total_avg > 128.5 || total_avg < 126) {
         for(let i = 0; i < newSliderLocs.length; i++) {
             if (slider_changed != i) {
-                newSliderLocs[i] = newSliderLocs[i] - (total_avg - 256) / (newSliderLocs.length - 1);
+                newSliderLocs[i] = newSliderLocs[i] - (total_avg - 128) / (newSliderLocs.length - 1);
             }
         }        
     }
@@ -440,12 +456,12 @@ function adjSliders(t) {
     recalc();
 }
 
-const playspeeds = [4000,2000,1000,750,500,250]
+const playspeeds = [1000,750,500,250,125,80]
 
 var player;
 
 function play() {
-    if (track_time) {
+    if (DitherStudies.DEBUG) {
         startTime = new Date();
         var timeDiff = startTime - prevTime;
         console.log(`${timeDiff / 1000} since last frame`);
@@ -461,23 +477,25 @@ function play() {
     if (download) {
         download_link.click();
     }
-    if (colorslide.value >= 511) 
-        stop_play_and_download();
+    if (colorslide.value >= 255) 
+        stopPlayAndDownload();
 
-    if (track_time) {
+    if (DitherStudies.DEBUG) {
         endTime = new Date();
         var timeDiff = endTime - startTime; //in ms
         console.log(`drew dither in ${timeDiff / 1000} seconds`);    
     }
 }
-function play_and_download() {
+function playAndDownload() {
+    isPlaying = true;
     document.getElementById("playbutton_play").classList.add("activated");
     document.getElementById("playbutton_stop").classList.remove("activated");
 
     clearInterval(player);
     player = setInterval(play, playspeeds[document.getElementById("playspeed").value]);
 }
-function stop_play_and_download() {
+function stopPlayAndDownload() {
+    isPlaying = false;
     document.getElementById("playbutton_play").classList.remove("activated");
     document.getElementById("playbutton_stop").classList.add("activated");
 
@@ -485,7 +503,7 @@ function stop_play_and_download() {
 }
 function changePlaySpeed() {
     clearInterval(player);    
-    play_and_download();
+    playAndDownload();
 }
 
 function currshape() {
@@ -510,6 +528,7 @@ function currPixelSize() {
 }
 
 function updateFlow(flow) {
+    // change direction of top text to fit the flow direction
     if (flow == "ltor") {
         document.getElementById("toptitle").style.transform = '';
         document.getElementById("studiestitle").style.transform = '';
@@ -548,7 +567,7 @@ function recalc() {
         b += orig.b * score;
         slider_values[i] = score;
     }
-    var finalcolor = d3.lab(l / 512, a / 512, b / 512);
+    var finalcolor = d3.lab(l / 256, a / 256, b / 256);
 
     // determine ltor vs serpentine
     var radios = document.getElementsByName('flow');
@@ -591,7 +610,7 @@ function updateColorControls() {
     color_count = document.querySelector('input[name="colorListSize"]:checked').value;
     createColorChildControls(color_count);
     while (sliderLocs.length < color_count) {
-        sliderLocs.push(255);
+        sliderLocs.push(128);
     } 
     recalc();
 }
@@ -653,9 +672,9 @@ function createColorChildControls(colorslength) {
         selectSlide.id = "colorslide" + i;
         selectSlide.setAttribute("type", "range");
         selectSlide.setAttribute("min", "0");
-        selectSlide.setAttribute("max", "511");
+        selectSlide.setAttribute("max", "255");
         if (sliderLocs.length <= i) {
-            sliderLocs[i] = 255; //512/(sliderLocs.length + 1);
+            sliderLocs[i] = 128;
         }
         selectSlide.setAttribute("value", sliderLocs[i]);
         selectSlide.setAttribute("class", "slider");
@@ -675,7 +694,7 @@ function createColorChildControls(colorslength) {
 
         for (let i = 0; i < colorslength; i++) {
             currval = document.getElementById("colorslide" + i).getAttribute("value");
-            document.getElementById("colorslide" + i).setAttribute("value", currval * (512 / totval) - 1);
+            document.getElementById("colorslide" + i).setAttribute("value", currval * (256 / totval) - 1);
         }
     }
 }

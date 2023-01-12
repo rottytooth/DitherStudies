@@ -68,7 +68,7 @@
 
             <div class="section" id="dither_algo_controls">
                 <select id="ditheringAlgorithm"></select><br/>
-                <a style="color: blue; cursor: pointer;" id="see_kernel" onclick="open_kernel_popup()">See Kernel</a><br/>
+                <a style="color: blue; cursor: pointer;" id="see_kernel" onclick="openKernelPopup()">See Kernel</a><br/>
             </div>
             <div class="section" id="flowSection">
                 <div class="choiceLabel">Flow: </div>
@@ -110,16 +110,17 @@
                 <br/>
 
                 <div id="playbuttons">
-                    <div class="button small play" id="playbutton_play" onclick="play_and_download()">
+                    <div class="button small play" id="playbutton_play" onclick="playAndDownload()">
                         <img src="icons/U+23F5.svg" />
                     </div>
-                    <div class="button small play activated" id="playbutton_stop" onclick="stop_play_and_download()">
+                    <div class="button small play activated" id="playbutton_stop" onclick="stopPlayAndDownload()">
                         <img src="icons/U+23F8.svg" />
                     </div>
                     <input id="playspeed" type="range" min="0" max="5" value="3" class="slider_psize" style="width:130px;" onchange="changePlaySpeed()">
-                    <br/>
-                    <input type="checkbox" id="ch_download"/>
-                    <label for="ch_download">&#9888; Download each frame</label>
+                    <div id="download_all" title="Careful! This will create many local files and will slow the animation considerably on many machines">
+                        <input type="checkbox" id="ch_download"/>
+                        <label for="ch_download">&#9888; Download each frame &#9888;</label>
+                    </div>
                 </div>
             </div>
         </div></div>

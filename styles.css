@@ -197,6 +197,9 @@ select {
 .activated {
   background-color: #ddd;
 }
+#download_all {
+  padding-top: 10px;
+}
   /* Mouse-over effects */
   .slider:hover,  .slider_psize:hover {
     opacity: 1; /* Fully shown on mouse-over */
