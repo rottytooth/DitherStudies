@@ -3,7 +3,7 @@ const DitherStudies = () => {
 
     const DEBUG = false;
 
-    function getclosestcol(pixel, palette_d3)
+    function _getClosestColor(pixel, palette_d3)
     {
         // find euclidean distance against each color in palette
         var eucldist = [];
@@ -33,8 +33,8 @@ const DitherStudies = () => {
     x, y: location of cell to calculate
     ltor: left to right
     */
-    function calculateCell(x, y, val, palette, matrix, ltor, algorithm) {
-        matrix[y][x] = getclosestcol(val, palette);
+    function _calculateCell(x, y, val, palette, matrix, ltor, algorithm) {
+        matrix[y][x] = _getClosestColor(val, palette);
 
         diffmatrix = {
             "l": matrix[y][x].l - val.l,
@@ -100,11 +100,11 @@ const DitherStudies = () => {
 
             if (ltor) {
                 for(let x = 0; x < matrix[y].length; x++) {
-                    calculateCell(x, y, matrix[y][x], palette_d3, matrix, ltor, algorithm);
+                    _calculateCell(x, y, matrix[y][x], palette_d3, matrix, ltor, algorithm);
                 }
             } else {
                 for(let x = matrix[y].length - 1; x >= 0; x--) {
-                    calculateCell(x, y, matrix[y][x], palette_d3, matrix, ltor, algorithm);
+                    _calculateCell(x, y, matrix[y][x], palette_d3, matrix, ltor, algorithm);
                 }
             }
         }

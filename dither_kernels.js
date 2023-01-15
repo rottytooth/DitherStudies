@@ -7,7 +7,8 @@ DitherStudies.shapes = [
     "righttriangle",
     "righttriangle_rev",
     "triangle",
-    "hexagon"
+    "hexagon",
+    "hexagon_rev"
 ]
 
 DitherStudies.kernels = {

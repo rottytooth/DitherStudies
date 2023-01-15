@@ -2,6 +2,7 @@
 const EQ_SIDE_TO_HEIGHT = Math.sqrt(3)/2;
 const HEX_SIDE_TO_HEIGHT = 1.732051;
 
+// default sets of colors on first load 
 const colorsets = [
     {first:"#00ff00",second:"#ff00ff",avg:"#e0c4b6"},
     {first:"#ffffff",second:"#000000",avg:"#777777"},
@@ -15,6 +16,7 @@ const sizeOfControls = 300;
 
 const margin = 30; // minimal hue margin difference for a randomized color
 
+// size in pixels for different size shapes. Should have equal # of entries so they fit in the same slider
 const pixelSizes = {
     "square": [5, 6, 8, 10, 14, 18, 27, 40, 80],
     "triangle": [6, 8, 10, 14, 18, 27, 40, 60, 80, 100],
@@ -33,6 +35,9 @@ var sliderLocs = []; // this will hold the prepopulated value of each of the col
 var ds; // this will be a DitherStudies object
 
 var prevTime = new Date();
+
+// speeds in milliseconds for playback
+const playspeeds = [1000,750,500,250,125,80]
 
 // We hold on to the previous matrix before drawing because in "play" mode, 
 // we don't want to draw exactly the same image that we had just displayed
@@ -405,6 +410,7 @@ function clickColor(t, number) {
     recalc();
 }
 
+// FIXME: This approach needs to be rethought. Does not seem to work in some situations, such as in a two-slider scenario, where the second is brought back to zero
 function adjSliders(t) {
     var sliders = document.getElementsByClassName("slider");
 
@@ -443,6 +449,8 @@ function adjSliders(t) {
 
     // check that the other sliders do not total more than they should
     let total_avg = newSliderLocs.reduce((partialSum, a) => partialSum + parseInt(a), 0) / newSliderLocs.length;
+
+    // if it is CLOSE to halfway, the expected average
     if (total_avg > 128.5 || total_avg < 126) {
         for(let i = 0; i < newSliderLocs.length; i++) {
             if (slider_changed != i) {
@@ -456,9 +464,8 @@ function adjSliders(t) {
     recalc();
 }
 
-const playspeeds = [1000,750,500,250,125,80]
 
-var player;
+var player; // manages intervals
 
 function play() {
     if (DitherStudies.DEBUG) {
