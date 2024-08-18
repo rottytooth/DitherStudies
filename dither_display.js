@@ -98,7 +98,7 @@ const decodeLocation = () => {
         return {
             palette: [defaultColorSet.first, defaultColorSet.second],
             colorToDither: d3.lab(defaultColorSet.avg),
-            slidervals: [128, 128],
+            slidervals: [127, 127],
             algo: 'FloydSteinberg',
             flow: 'ltor',
             pixelSize: 8,
@@ -410,57 +410,54 @@ function clickColor(t, number) {
     recalc();
 }
 
-// FIXME: This approach needs to be rethought. Does not seem to work in some situations, such as in a two-slider scenario, where the second is brought back to zero
+function reMapArray(array, changed, arraySum) {
+    const sum = array.reduce( (a, b) => a+b );
+    const adjust = (sum - arraySum) / (array.length - 1);
+    return array.map( (a, i) => i === changed ? a : a - adjust );
+}
+
+
 function adjSliders(t) {
     var sliders = document.getElementsByClassName("slider");
 
     slider_changed = parseInt(t.id.slice(-1));
 
-    // sliderLocs is the set of sliders how they were before the change
-    // we will use them to maintain the same ratio
+    var oldValues = JSON.parse(JSON.stringify(sliderLocs));
+    var newValues = Array.prototype.slice.call(sliders).map(a => parseInt(a.value));
 
-    if (!sliderLocs || sliderLocs.length == 0) {
-        sliderLocs = [];
+    remove_one = false; // indicates we are using a new value of 0 for calculations that should not be sent to the display
+
+    if (oldValues.length < newValues.length) {
+        oldValues[oldValues.length] = 127;
+        slider_changed = oldValues.length - 1;
+    }
+    if (newValues.length < oldValues.length) {
+        newValues[newValues.length] = 127;
+        slider_changed = newValues.length - 1;
+        remove_one = true; 
     }
 
-    // we don't have all the entries yet
-    if (sliderLocs.length < sliders.length) {
-        for (let i = 0; i < sliders.length; i++) {
-            sliderLocs[i] = 128;
-        }
+    newValues = reMapArray(newValues, slider_changed, 255);    
+
+    if (remove_one) {
+        newValues.pop();
     }
 
-    slidersum = 255 - sliderLocs[slider_changed]; // sum of the ones that did not change
+    sliderLocs = newValues;
 
-    var newSliderLocs = [];
-    for(let i = 0; i < sliders.length; i++) {
+    // // DEBUG
+    // let total_avg = newValues.reduce((partialSum, a) => partialSum + parseInt(a), 0) / newValues.length;
 
-        // if this is not the slider that's changed, offset the value to compensate for the change, keeping the original ratio between non-changed sliders
-        if (slider_changed != i) {
-            if (slidersum < 2) { // avoid divide-by-zero
-                document.getElementById("colorslide" + i).value = parseInt(Math.floor(sliderLocs[i] * (256 - parseInt(document.getElementById("colorslide" + slider_changed).value))));
-            }
-            document.getElementById("colorslide" + i).value = parseInt(Math.floor(sliderLocs[i] * (256 - parseInt(document.getElementById("colorslide" + slider_changed).value)) / slidersum - 1));
-        }
+    // sum = 0;
+    // for (let i = 0; i < newValues.length; i++) {
+    //     console.log(`Slider ${i} = ${newValues[i]}`);
+    //     sum += newValues[i];
+    // }
 
-        // copy that new value to newSliderLocs
-        newSliderLocs[i] = parseInt(document.getElementById("colorslide" + i).value);
-    }
+    // console.log(`sum = ${sum}`);
+    // console.log(`total_avg = ${total_avg}`);
 
-    // check that the other sliders do not total more than they should
-    let total_avg = newSliderLocs.reduce((partialSum, a) => partialSum + parseInt(a), 0) / newSliderLocs.length;
-
-    // if it is CLOSE to halfway, the expected average
-    if (total_avg > 128.5 || total_avg < 126) {
-        for(let i = 0; i < newSliderLocs.length; i++) {
-            if (slider_changed != i) {
-                newSliderLocs[i] = newSliderLocs[i] - (total_avg - 128) / (newSliderLocs.length - 1);
-            }
-        }        
-    }
-
-    sliderLocs = newSliderLocs;
-
+    createColorChildControls(sliderLocs.length, sliderLocs);
     recalc();
 }
 
@@ -617,7 +614,7 @@ function updateColorControls() {
     color_count = document.querySelector('input[name="colorListSize"]:checked').value;
     createColorChildControls(color_count);
     while (sliderLocs.length < color_count) {
-        sliderLocs.push(128);
+        sliderLocs.push(127);
     } 
     recalc();
 }
@@ -627,7 +624,7 @@ function createColorControls() {
 }
 
 // this can be called either from dropdown change or from querystring
-function createColorChildControls(colorslength) {
+function createColorChildControls(colorslength, passed_sliderLocs = []) {
     colorslength = parseInt(colorslength);
 
     state = decodeLocation();
@@ -644,9 +641,13 @@ function createColorChildControls(colorslength) {
 
     sliders.innerHTML = '';
 
-    sliderLocs = [];
-    if ('slidervals' in state && state.slidervals != null) {
-        sliderLocs = state.slidervals;
+    // if sliderLocs not passed, try to get from state
+    sliderLocs = passed_sliderLocs;
+    if (sliderLocs == []){
+        if ('slidervals' in state && state.slidervals != null) {
+            sliderLocs = state
+            .slidervals;
+        }
     }
  
     for (let i = 0; i < colorslength; i++) {
@@ -681,7 +682,7 @@ function createColorChildControls(colorslength) {
         selectSlide.setAttribute("min", "0");
         selectSlide.setAttribute("max", "255");
         if (sliderLocs.length <= i) {
-            sliderLocs[i] = 128;
+            sliderLocs[i] = 127;
         }
         selectSlide.setAttribute("value", sliderLocs[i]);
         selectSlide.setAttribute("class", "slider");
