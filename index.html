@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <script src = "lib/d3-color.v1.js"></script>
+  <script src = "dither_studies.js"></script>
+  <script src = "dither_kernels.js"></script>
+  <link href="lib/LatoOpenSans.css" rel="stylesheet">
+  <link rel="Stylesheet" href="styles.css" />
+  <title>Dither Studies</title>
+  </head>
+<body>
+    <div id="outerContainer">
+        <div id="kernelBackground"></div>
+        <div id="kernelPopUp">
+        <div id="closePopup" onclick="close_kernel_popup()">&#x00D7;</div>
+        <div id="popupContent">
+            <h2><span id="currentDither"></span></h2>
+            <div id="kernelsWrapper">
+                <div class="kernelRow">
+                    <div class="kernelHolder">
+                        <canvas id="kernelMap" width="48%" height="300"></canvas>
+                    </div>
+                    <div class="kernelHolder">
+                        <canvas id="kernelMap_Down" width="48%" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div id="popupDesc"></div>
+            <!-- <div id="aboutDS">
+                Dither Studies is a study of dithers.
+            </div> -->
+        </div>
+    </div>
+    <div id="bigContainer">
+            <canvas id="ditherCanvas"></canvas>
+        </div>
+        <div id="contols_wrapper"><div id="controls">
+            <h1 id="toptitle"><span id="dithertitle">Dither</span> <span id="studiestitle">Studies</span></h1>
+            <h3><span id="subtitle_line1">A Contentless Dithering</span><span id="subtitle_line2">System by Daniel Temkin</span></h3>
+            <h3><a href="https://danieltemkin.com/DitherStudies/About/" id="about_link">About</a></h3>
+            <div class="section" id="shape_radios">
+
+                <div class="button">
+                    <input type="radio" id="shape_sq" name="shape" value="square" onchange="setShape()" checked="checked"><label class="btn btn-default" for="shape_sq"><img src="icons/U+25A0.svg" style="height: 32px"></label>
+                </div>
+                <div class="button">
+                    <input type="radio" id="shape_tri" name="shape" value="triangle" onchange="setShape()" />
+                    <label class="btn btn-default" for="shape_tri" id="trilabel"><img src="icons/U+25B2.svg" style="height: 32px"></label>
+                </div>
+                <div class="button">
+                    <input type="radio" id="shape_righttri_rev" name="shape" value="righttriangle_rev" onchange="setShape()"><label class="btn btn-default" for="shape_righttri_rev"><img src="icons/U+25E2.svg" style="height: 32px"></label>
+                </div>
+                <div class="button">
+                    <input type="radio" id="shape_righttri" name="shape" value="righttriangle" onchange="setShape()" />
+                    <label class="btn btn-default" for="shape_righttri"><img src="icons/U+25E3.svg" style="height: 32px"></label>
+                </div>
+                <div class="button hex">
+                    <input type="radio" id="shape_hexagon_rev" name="shape" value="hexagon_rev" onchange="setShape()" />
+                    <label class="btn btn-default" for="shape_hexagon_rev"><img src="icons/U+2B22.svg" style="height: 36px"></label>
+                </div>
+                <div class="button hex">
+                    <input type="radio" id="shape_hexagon" name="shape" value="hexagon" onchange="setShape()" />
+                    <label class="btn btn-last" for="shape_hexagon"><img src="icons/U+2B23.svg" style="height: 36px"></label>
+                </div>
+                
+            </div>
+
+            <div class="section" id="dither_algo_controls">
+                <select id="ditheringAlgorithm"></select><br/>
+                <a style="color: blue; cursor: pointer;" id="see_kernel" onclick="openKernelPopup()">See Kernel</a><br/>
+            </div>
+            <div class="section" id="flowSection">
+                <div class="choiceLabel">Flow: </div>
+                <div class="button small">
+                    <input type="radio" id="ltor" name="flow" value="ltor" onchange="recalc()" checked="checked"><label class="btn btn-default" for="ltor"><img src="icons/U+21C9.svg"/></label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="serpentine" name="flow" value="serpentine" onchange="recalc()" checked="checked"><label class="btn btn-default" for="serpentine"><img src="icons/U+21C4.svg"/></label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="rtol" name="flow" value="rtol" onchange="recalc()" checked="checked"><label class="btn btn-default" for="rtol"><img src="icons/U+21C7.svg"/></label>
+                </div>
+                <div class="slidecontainer">
+                    <label for="pixelsize" id="pixelSizeLabel">Size: </label>
+                    <input id="pixelsize" type="range" min="0" max="8" value="3" class="slider_psize" onchange="setPixelSize()">
+                </div>
+            </div>
+
+            <hr/>
+            <div id="dither_color_controls">
+                <div class="choiceLabel">Colors: </div>
+                <div class="button small">
+                    <input type="radio" id="colorlistsize_2" name="colorListSize" value="2" checked="checked"><label class="btn btn-small"  style="text-align: center" for="colorlistsize_2"><img src="icons/two_color.svg" style="height: 20px"/></label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="colorlistsize_3" name="colorListSize" value="3" checked="checked"><label class="btn btn-small" for="colorlistsize_3"><img src="icons/three_color.svg" style="height: 20px"/></label>
+                </div>
+                <div class="button small">
+                    <input type="radio" id="colorlistsize_4" name="colorListSize" value="4" checked="checked"><label class="btn-small" for="colorlistsize_4"><img src="icons/four_color.svg"/></label>
+                </div><div style="clear: both"></div>
+
+                <div id="sliders"></div>
+            </div>
+
+            <hr/>
+            <div class="section">
+
+                <a style="color: blue; cursor: pointer;" id="download">Download Image</a>
+                <br/>
+
+                <div id="playbuttons">
+                    <div class="button small play" id="playbutton_play" onclick="playAndDownload()">
+                        <img src="icons/U+23F5.svg" />
+                    </div>
+                    <div class="button small play activated" id="playbutton_stop" onclick="stopPlayAndDownload()">
+                        <img src="icons/U+23F8.svg" />
+                    </div>
+                    <input id="playspeed" type="range" min="0" max="5" value="3" class="slider_psize" style="width:130px;" onchange="changePlaySpeed()">
+                    <div id="download_all" title="Careful! This will create many local files and will slow the animation considerably on many machines">
+                        <input type="checkbox" id="ch_download"/>
+                        <label for="ch_download">&#9888; Download each frame &#9888;</label>
+                    </div>
+                </div>
+            </div>
+        </div></div>
+    </div>
+    <script type="text/javascript">
+        const sizeOfControls = 300;
+    </script>
+    <script src = "dither_display.js"></script>
+    <script type="text/javascript">
+        document.getElementById('download').onclick = function() {
+            save_img_jquery(this, 'ditherCanvas');
+        };        
+    </script>
+</body>
+</html>

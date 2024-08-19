@@ -197,15 +197,6 @@ DitherStudies.kernels = {
         "shapes": ["hexagon_rev"],
         "group": "Other Shapes"
     },
-    "Stearns": {
-        "name": "Stearns",
-        "start_x" : 1,
-        "start_y" : 0,
-        "denom" : 28,
-        "nums" : [[ 0, 0, 5, 3 ], [ 3, 5, 3, 1 ], [ 1, 3, 3, 1 ]],
-        "shapes": ["square","righttriangle","righttriangle_rev","triangle","hexagon","hexagon_rev"],
-        "group": "Other Shapes"
-    },
     "TwoRowGrey": {
         "name": "TwoRowGrey",
         "start_x" : 1,

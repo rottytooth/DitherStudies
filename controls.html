@@ -9,14 +9,17 @@
   <link rel="Stylesheet" href="styles.css" />
   <title>Dither Studies</title>
   <style type="text/css">
-    #contols_wrapper {
+    #ditherCanvas {
+        display: none;
+    }
+    #bigContainer {
         display: none;
     }
     #kernelPopUp, #kernelBackground {
-        display: none;
+        display: block;
     }
     .kernelShow, .kernelHide {
-        display: none;
+        display: block;
     }
     </style>
   </head>
@@ -116,9 +119,6 @@
 
     </div></div>
 </div>
-<script type="text/javascript">
-    const sizeOfControls = -10;
-</script>
 <script src = "dither_display.js"></script>
 </script>
 </body>

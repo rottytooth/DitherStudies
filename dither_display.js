@@ -12,7 +12,6 @@ const colorsets = [
 
 const defaultColorSet = colorsets[Math.floor(Math.random() * colorsets.length)];
 
-const sizeOfControls = 300;
 
 const margin = 30; // minimal hue margin difference for a randomized color
 
@@ -428,11 +427,11 @@ function adjSliders(t) {
     remove_one = false; // indicates we are using a new value of 0 for calculations that should not be sent to the display
 
     if (oldValues.length < newValues.length) {
-        oldValues[oldValues.length] = 127;
+        oldValues[oldValues.length] = (512 / oldValues.length);
         slider_changed = oldValues.length - 1;
     }
     if (newValues.length < oldValues.length) {
-        newValues[newValues.length] = 127;
+        newValues[newValues.length] = (512 / oldValues.length);
         slider_changed = newValues.length - 1;
         remove_one = true; 
     }
@@ -614,7 +613,7 @@ function updateColorControls() {
     color_count = document.querySelector('input[name="colorListSize"]:checked').value;
     createColorChildControls(color_count);
     while (sliderLocs.length < color_count) {
-        sliderLocs.push(127);
+        sliderLocs.push(256 / colorslength);
     } 
     recalc();
 }
@@ -682,7 +681,7 @@ function createColorChildControls(colorslength, passed_sliderLocs = []) {
         selectSlide.setAttribute("min", "0");
         selectSlide.setAttribute("max", "255");
         if (sliderLocs.length <= i) {
-            sliderLocs[i] = 127;
+            sliderLocs[i] = (256 / colorslength );
         }
         selectSlide.setAttribute("value", sliderLocs[i]);
         selectSlide.setAttribute("class", "slider");
@@ -1048,17 +1047,19 @@ var originalWidth;
     ds = DitherStudies();
 
     canvas = document.getElementById("ditherCanvas");
-    canvas.width = document.body.clientWidth - sizeOfControls;
-    canvas.height = document.body.clientHeight;
+    if (canvas != undefined ) {
+        canvas.width = document.body.clientWidth - sizeOfControls;
+        canvas.height = document.body.clientHeight;    
 
-    originalWidth = canvas.width; // global, used for pixel calculation
+        originalWidth = canvas.width; // global, used for pixel calculation
 
-    if (/[?&]cols=/.test(location.search)) {
-        // we have just loaded the page and there is already a "cols" in the querystring
-    
-        updateDisplay(
-            document.getElementById('ditherCanvas').clientHeight,
-            document.getElementById('ditherCanvas').clientWidth);        
+        if (/[?&]cols=/.test(location.search)) {
+            // we have just loaded the page and there is already a "cols" in the querystring
+        
+            updateDisplay(
+                document.getElementById('ditherCanvas').clientHeight,
+                document.getElementById('ditherCanvas').clientWidth);        
+        }
     }
     state = decodeLocation();
 
@@ -1095,23 +1096,24 @@ var originalWidth;
     algoselect = document.getElementById("ditheringAlgorithm");
     document.getElementById("see_kernel").innerText = `About ${algoselect.options[algoselect.selectedIndex].text}`;
 
-    let height = document.getElementById('ditherCanvas').clientHeight;
-    let width = document.getElementById('ditherCanvas').clientWidth;
-    updateDisplay(height, width);
-
-    window.addEventListener('resize', function() {
-        populatePopUp();
-
-        canvas = document.getElementById("ditherCanvas");
-        canvas.width = document.body.clientWidth - sizeOfControls;
-        canvas.height = document.body.clientHeight;
-
+    if (canvas != undefined) {
         let height = document.getElementById('ditherCanvas').clientHeight;
         let width = document.getElementById('ditherCanvas').clientWidth;
         updateDisplay(height, width);
-    });
 
-    document.getElementById("ditherCanvas").addEventListener("click", close_kernel_popup);
+        window.addEventListener('resize', function() {
+            populatePopUp();
 
+            canvas = document.getElementById("ditherCanvas");
+            canvas.width = document.body.clientWidth - sizeOfControls;
+            canvas.height = document.body.clientHeight;
+
+            let height = document.getElementById('ditherCanvas').clientHeight;
+            let width = document.getElementById('ditherCanvas').clientWidth;
+            updateDisplay(height, width);
+        });
+
+        document.getElementById("ditherCanvas").addEventListener("click", close_kernel_popup);
+    }
  })();
 
